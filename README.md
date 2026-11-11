@@ -68,6 +68,11 @@ Este proyecto se construye con un flujo AI-native, con revisión humana de cada 
 - **Las versiones se justifican con evidencia.** Ejemplo: TypeScript 6.0 y ESLint 9 en lugar de las últimas
   mayores, porque `typescript-eslint` y los plugins de `eslint-config-next` todavía no las soportan.
 
+## Licencia
+
+[MIT](./LICENSE) © 2026 Luciano Kloster. Las dependencias conservan sus propias licencias
+(Mapbox GL JS es propietaria y GSAP tiene la suya; se documentan cuando se incorporan).
+
 ## Atribuciones
 
 - Mapas: © [Mapbox](https://www.mapbox.com/about/maps/)
