@@ -209,6 +209,13 @@ en el flujo de trabajo.
   Incluye medir con Lighthouse el costo real del render dinámico que impone la CSP con nonce y documentar
   la decisión con números (mantener nonce vs. SRI experimental).
 
+## Preguntas abiertas
+
+- **Fase 2 — vías cortadas en el límite del área**: la extracción trae solo lo que cae dentro de los partidos
+  de Bahía Blanca y Coronel Rosales, así que las vías que salen hacia otros partidos (Tornquist, Villarino,
+  Patagones…) terminan abruptamente en el borde. Decidir cómo mostrarlo: fade al final de la vía, recorte con
+  margen, ampliar el área con un margen alrededor, u otra opción.
+
 ## README final (en español)
 
 Demo, GIF, stack y **por qué** de cada elección, decisiones técnicas y alternativas descartadas, cómo se usó la IA
