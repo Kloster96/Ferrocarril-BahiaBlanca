@@ -21,6 +21,7 @@ Fase 0 — Setup.
   `Referrer-Policy`, `Permissions-Policy`, HSTS y `frame-ancestors 'none'`.
 - CI en GitHub Actions: formato, lint, typecheck, tests, build, `pnpm audit` y rechazo de tokens `sk.`.
 - Escaneo de secretos con gitleaks, Dependabot con enfriamiento de 7 días y plantilla de pull request.
+- Licencia MIT.
 - `.env.example` y README inicial con cómo usar la IA en el flujo de trabajo.
 
 ### Decisiones
@@ -32,8 +33,13 @@ Fase 0 — Setup.
   publicación. Se mantuvo esa protección en lugar de excluir el paquete.
 - CSP con nonce: exige render dinámico de las páginas. La alternativa (SRI) sigue siendo experimental en Next 16.4.
 
-### Conocido
+### Deuda conocida
 
-- Advisory moderado de `minimatch` (ReDoS) en el árbol de ESLint: solo desarrollo, corrige `>=11.0.1` upstream.
+- **ESLint 9 sin soporte**: npm lo marca como "no longer supported". No se puede subir a ESLint 10 mientras
+  `eslint-plugin-react`, `-import` y `-jsx-a11y` no lo soporten. Revisar en cada actualización de `eslint-config-next`.
+- **`minimatch` (ReDoS, severidad moderada)** en el árbol de ESLint: solo desarrollo, corrige `>=11.0.1` upstream.
+  El gate de `pnpm audit` queda en `high` hasta que `typescript-eslint` lo actualice.
+- **Costo de la CSP con nonce**: obliga a render dinámico. Se mide con Lighthouse en la Fase 7 y se documenta
+  la decisión con números.
 
 [0.1.0]: https://github.com/Kloster96/Ferrocarril-BahiaBlanca/releases/tag/v0.1.0
