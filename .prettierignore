@@ -4,3 +4,4 @@ node_modules
 coverage
 .atl
 docs/PLAN.md
+data/raw
