@@ -1,4 +1,6 @@
 import type { NextConfig } from "next";
+// Importing for its side effect: a malformed or secret Mapbox token throws here, failing `next dev`/`next build`.
+import "./src/lib/env";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
