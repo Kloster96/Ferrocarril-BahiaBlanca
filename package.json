@@ -11,7 +11,8 @@
     "build": "pnpm --filter web build",
     "start": "pnpm --filter web start",
     "lint": "pnpm --filter web lint",
-    "typecheck": "pnpm --filter web typecheck",
+    "typecheck": "pnpm --filter web typecheck && pnpm --filter web exec tsc -p ../data/tsconfig.json",
+    "data:extract": "node data/scripts/extract-osm.ts",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "pnpm --filter web test"
