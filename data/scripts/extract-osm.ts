@@ -16,6 +16,8 @@ const AREAS = [
 ] as const;
 
 const ENDPOINT = "https://overpass-api.de/api/interpreter";
+const USER_AGENT =
+  "Ferrocarril-BahiaBlanca (+https://github.com/Kloster96/Ferrocarril-BahiaBlanca)";
 const OUTPUT = resolve(dirname(fileURLToPath(import.meta.url)), "../raw/osm-raw.json");
 
 // Overpass answers 429/502/503/504 when it is busy. We wait and retry a few times, then give up:
@@ -34,9 +36,9 @@ async function fetchOverpass(query: string): Promise<Response> {
   for (let attempt = 0; ; attempt++) {
     const response = await fetch(ENDPOINT, {
       method: "POST",
-      // Overpass asks clients to identify themselves. A generic name is enough; no contact data is sent.
+      // OSM's usage policy asks clients to identify the project. Name + public repo URL; no personal data.
       headers: {
-        "User-Agent": "osm-data-script/1.0",
+        "User-Agent": USER_AGENT,
         "Content-Type": "application/x-www-form-urlencoded",
       },
       body: new URLSearchParams({ data: query }),
