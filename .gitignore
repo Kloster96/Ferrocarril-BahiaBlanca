@@ -1,0 +1,38 @@
+# Local tooling registry (absolute machine paths)
+.atl/
+
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Next.js / build output
+.next/
+/web/out/
+build/
+dist/
+next-env.d.ts
+
+# Environment: only the documented example is versioned
+.env
+.env.*
+!.env.example
+
+# Tests
+coverage/
+playwright-report/
+test-results/
+
+# Logs and OS/editor noise
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# TypeScript
+*.tsbuildinfo
+
+# Vercel
+.vercel
