@@ -1,0 +1,17 @@
+{
+  "name": "ferrocarril-bahia-blanca",
+  "private": true,
+  "description": "Scrollytelling con mapa sobre el ferrocarril en Bahía Blanca",
+  "packageManager": "pnpm@12.16.1",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "pnpm --filter web dev",
+    "build": "pnpm --filter web build",
+    "start": "pnpm --filter web start",
+    "lint": "pnpm --filter web lint",
+    "typecheck": "pnpm --filter web typecheck",
+    "test": "pnpm --filter web test"
+  }
+}
