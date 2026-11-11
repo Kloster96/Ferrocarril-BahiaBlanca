@@ -216,6 +216,13 @@ en el flujo de trabajo.
   Patagones…) terminan abruptamente en el borde. Decidir cómo mostrarlo: fade al final de la vía, recorte con
   margen, ampliar el área con un margen alrededor, u otra opción.
 
+- **Fase 1/3 — agrupar vías en ramales (decisión de Luciano)**: la limpieza NO agrupa las vías en ramales.
+  141 de 313 vías no tienen `description` ni `ref`, y los que sí tienen se contradicen (`R-26` figura como
+  "Ingeniero White" y como "Ramal Empalme Grünbein - Bahía Blanca"). Además `description` mezcla nombres de ramal
+  con nombres de compañía ("Ferrocarril Rosario a Puerto Belgrano"). Agrupar automáticamente sería adivinar.
+  Hasta decidir el criterio (a mano, por capítulo o con una tabla verificada) se conservan `ref`, `description`,
+  `operator` y `network` tal cual vienen de OSM.
+
 ## README final (en español)
 
 Demo, GIF, stack y **por qué** de cada elección, decisiones técnicas y alternativas descartadas, cómo se usó la IA
