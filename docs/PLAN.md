@@ -5,12 +5,11 @@
 
 ## Contexto
 
-Soy Luciano, desarrollador frontend. Este proyecto es una pieza de portfolio para una entrevista en una empresa
-100% remota que construye interfaces en Next.js, React y Tailwind, **mapas interactivos con Mapbox** y
-**paneles con gráficos conectados a sus APIs**, con un flujo de trabajo AI-native. Piden:
-TypeScript + React + Next.js, Tailwind con atención obsesiva al detalle visual, micro-interacciones y animaciones,
-librerías de mapas y de animación (Framer Motion / GSAP), nociones de Figma, comunicación asíncrona clara, y
-usar IA **con criterio**: tengo que poder entender y explicar cada línea que se sube a un PR.
+Soy Luciano, desarrollador frontend. Este proyecto es una pieza de portfolio para puestos frontend con
+mapas interactivos, visualización de datos y flujo AI-native. Busca demostrar: TypeScript + React + Next.js,
+Tailwind con atención obsesiva al detalle visual, micro-interacciones y animaciones, librerías de mapas y de
+animación (Framer Motion / GSAP), nociones de Figma, comunicación asíncrona clara, y usar IA **con criterio**:
+tengo que poder entender y explicar cada línea que se sube a un PR.
 
 Tu rol es el de un **senior que trabaja en pareja conmigo**, no el de un generador de código.
 Construimos de a poco, con PRs chicos, y me explicás las decisiones.

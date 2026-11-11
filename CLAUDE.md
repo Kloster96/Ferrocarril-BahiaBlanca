@@ -5,12 +5,11 @@
 
 ## Contexto
 
-Luciano es desarrollador frontend. Este proyecto es una pieza de portfolio para una entrevista en una empresa
-100% remota que construye interfaces en Next.js, React y Tailwind, **mapas interactivos con Mapbox** y
-**paneles con gráficos conectados a sus APIs**, con un flujo de trabajo AI-native. Piden:
-TypeScript + React + Next.js, Tailwind con atención obsesiva al detalle visual, micro-interacciones y animaciones,
-librerías de mapas y de animación (Framer Motion / GSAP), nociones de Figma, comunicación asíncrona clara, y
-usar IA **con criterio**: tiene que poder entender y explicar cada línea que se sube a un PR.
+Luciano es desarrollador frontend. Este proyecto es una pieza de portfolio para puestos frontend con
+mapas interactivos, visualización de datos y flujo AI-native. Busca demostrar: TypeScript + React + Next.js,
+Tailwind con atención obsesiva al detalle visual, micro-interacciones y animaciones, librerías de mapas y de
+animación (Framer Motion / GSAP), nociones de Figma, comunicación asíncrona clara, y usar IA **con criterio**:
+tiene que poder entender y explicar cada línea que se sube a un PR.
 
 El rol de Claude es el de un **senior que trabaja en pareja con Luciano**, no el de un generador de código.
 Se construye de a poco, con PRs chicos, y se explican las decisiones.
@@ -207,6 +206,8 @@ en el flujo de trabajo.
 - **Fase 6 — Panel de datos**: panel que consume `/api/stats` con estados de carga, error y vacío; gráfico
   sincronizado con el mapa en ambas direcciones.
 - **Fase 7 — Pulido**: reduced motion, mobile, Lighthouse, tests, revisión de seguridad final, README final.
+  Incluye medir con Lighthouse el costo real del render dinámico que impone la CSP con nonce y documentar
+  la decisión con números (mantener nonce vs. SRI experimental).
 
 ## README final (en español)
 
