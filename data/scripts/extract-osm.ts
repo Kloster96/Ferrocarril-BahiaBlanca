@@ -8,37 +8,61 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { buildQuery } from "./overpass-query.ts";
 
-// OSM relation of the administrative boundary used as the search area (level 8, Q54108).
-const AREA_RELATION_ID = 3302861;
+// Administrative areas to search (OSM relation ids). Add or remove ids here to change the coverage.
+// Both are level-5 partidos: the railway history of the zone crosses the border between them.
+const AREAS = [
+  { relationId: 2582799, name: "Partido de Bahía Blanca" },
+  { relationId: 2584648, name: "Partido de Coronel de Marina Leonardo Rosales" },
+] as const;
+
 const ENDPOINT = "https://overpass-api.de/api/interpreter";
 const OUTPUT = resolve(dirname(fileURLToPath(import.meta.url)), "../raw/osm-raw.json");
+
+// Overpass answers 429/502/503/504 when it is busy. We wait and retry a few times, then give up:
+// insisting would go against its usage policy.
+const RETRYABLE_STATUS = new Set([429, 502, 503, 504]);
+const BACKOFF_SECONDS = [20, 45, 90];
 
 type OverpassResponse = {
   osm3s?: { timestamp_osm_base?: string };
   elements?: unknown;
 };
 
-async function main(): Promise<void> {
-  const query = buildQuery(AREA_RELATION_ID);
-  console.log(`Querying Overpass for area relation ${AREA_RELATION_ID}...`);
+const sleep = (seconds: number) => new Promise((done) => setTimeout(done, seconds * 1000));
 
-  const response = await fetch(ENDPOINT, {
-    method: "POST",
-    // Overpass asks clients to identify themselves. A generic name is enough; no contact data is sent.
-    headers: {
-      "User-Agent": "osm-data-script/1.0",
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body: new URLSearchParams({ data: query }),
-  });
+async function fetchOverpass(query: string): Promise<Response> {
+  for (let attempt = 0; ; attempt++) {
+    const response = await fetch(ENDPOINT, {
+      method: "POST",
+      // Overpass asks clients to identify themselves. A generic name is enough; no contact data is sent.
+      headers: {
+        "User-Agent": "osm-data-script/1.0",
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: new URLSearchParams({ data: query }),
+    });
 
-  // No automatic retry: on 429/504 the server is busy and hammering it is against its usage policy.
-  if (!response.ok) {
-    throw new Error(
-      `Overpass responded ${response.status} ${response.statusText}. Try again in a few minutes.`,
+    if (response.ok) return response;
+
+    const wait = BACKOFF_SECONDS[attempt];
+    if (!RETRYABLE_STATUS.has(response.status) || wait === undefined) {
+      throw new Error(
+        `Overpass responded ${response.status} ${response.statusText} after ${attempt + 1} attempt(s). Try again later.`,
+      );
+    }
+    console.log(
+      `Overpass responded ${response.status}. Waiting ${wait}s (retry ${attempt + 1}/${BACKOFF_SECONDS.length})...`,
     );
+    await sleep(wait);
   }
+}
 
+async function main(): Promise<void> {
+  const relationIds = AREAS.map((area) => area.relationId);
+  const query = buildQuery(relationIds);
+  console.log(`Querying Overpass for: ${AREAS.map((area) => area.name).join(" + ")}...`);
+
+  const response = await fetchOverpass(query);
   const body = (await response.json()) as OverpassResponse;
   if (!Array.isArray(body.elements)) {
     throw new Error("Unexpected Overpass response: `elements` is not an array.");
@@ -49,7 +73,7 @@ async function main(): Promise<void> {
       fetchedAt: new Date().toISOString(),
       // When the OSM database copy used by Overpass was last updated: this is the real age of the data.
       osmBaseTimestamp: body.osm3s?.timestamp_osm_base ?? null,
-      areaRelationId: AREA_RELATION_ID,
+      areas: AREAS,
       endpoint: ENDPOINT,
       query,
       license: "ODbL 1.0 — © OpenStreetMap contributors — https://www.openstreetmap.org/copyright",

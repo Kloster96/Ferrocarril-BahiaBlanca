@@ -16,23 +16,42 @@ const LIFECYCLE_KEY = `^(${LIFECYCLE_PREFIXES.join("|")}):railway$`;
 const alternation = (values: readonly string[]) => `^(${values.join("|")})$`;
 
 /**
- * Builds the Overpass QL query for every railway line and station in an administrative area,
- * including those that are disused, abandoned or razed (both `railway=abandoned` and
- * `abandoned:railway=rail` styles).
+ * Builds the Overpass QL query for every railway line and station inside the union of the given
+ * administrative areas, including those that are disused, abandoned or razed (both
+ * `railway=abandoned` and `abandoned:railway=rail` styles).
  *
  * Stations use `nwr` (node, way or relation) because OSM mappers draw them as points or as areas.
+ * Old stations are not always tagged `railway=station`, so we also match `historic=railway_station`
+ * and `building=train_station`. The latter returns building footprints that duplicate a station
+ * node a few metres away: they are kept raw here and merged by proximity during cleaning.
  */
-export function buildQuery(areaRelationId: number, timeoutSeconds = 120): string {
-  const area = AREA_ID_OFFSET + areaRelationId;
+export function buildQuery(areaRelationIds: readonly number[], timeoutSeconds = 120): string {
+  if (areaRelationIds.length === 0) {
+    throw new Error("buildQuery needs at least one area relation id.");
+  }
+  // The ids are interpolated into the query text, so reject anything that is not a plain positive integer.
+  for (const id of areaRelationIds) {
+    if (!Number.isSafeInteger(id) || id <= 0) {
+      throw new Error(`Invalid OSM relation id: ${String(id)}`);
+    }
+  }
+
+  const areaSets = areaRelationIds.map(
+    (id, index) => `area(id:${AREA_ID_OFFSET + id})->.a${index};`,
+  );
+  const union = `(${areaRelationIds.map((_, index) => `area.a${index};`).join(" ")})->.a;`;
 
   return [
     `[out:json][timeout:${timeoutSeconds}];`,
-    `area(id:${area})->.a;`,
+    ...areaSets,
+    union,
     "(",
     `  way(area.a)["railway"~"${alternation(LINE_VALUES)}"];`,
     `  way(area.a)[~"${LIFECYCLE_KEY}"~"^rail$"];`,
     `  nwr(area.a)["railway"~"${alternation(STATION_VALUES)}"];`,
     `  nwr(area.a)[~"${LIFECYCLE_KEY}"~"${alternation(STATION_VALUES)}"];`,
+    `  nwr(area.a)["historic"="railway_station"];`,
+    `  nwr(area.a)["building"="train_station"];`,
     ");",
     // `geom` returns coordinates for every way, so no second request is needed to resolve nodes.
     "out geom;",
