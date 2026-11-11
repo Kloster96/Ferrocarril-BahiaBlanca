@@ -7,17 +7,17 @@ capítulo, dibuja las vías a medida que avanzás y, al final, se libera para ex
 
 ## Stack
 
-| Tecnología                   | Para qué                                                |
-| ---------------------------- | ------------------------------------------------------- |
-| Next.js (App Router) + React | App y Route Handlers (`/api/*`)                         |
-| TypeScript (`strict`)        | Tipado; los tipos salen de los esquemas Zod             |
-| Tailwind CSS v4              | Estilos, configuración por CSS                          |
-| Mapbox GL JS                 | Mapa interactivo                                        |
-| GSAP + ScrollTrigger         | Solo lo atado al scroll (cámara del mapa, dibujo)       |
-| Motion                       | Solo UI (tarjetas, popups, hover/tap)                   |
-| Zod                          | Validación de datos y variables de entorno              |
-| Vitest + Playwright          | Tests unitarios y E2E                                   |
-| pnpm                         | Gestor de paquetes (workspace)                          |
+| Tecnología                   | Para qué                                          |
+| ---------------------------- | ------------------------------------------------- |
+| Next.js (App Router) + React | App y Route Handlers (`/api/*`)                   |
+| TypeScript (`strict`)        | Tipado; los tipos salen de los esquemas Zod       |
+| Tailwind CSS v4              | Estilos, configuración por CSS                    |
+| Mapbox GL JS                 | Mapa interactivo                                  |
+| GSAP + ScrollTrigger         | Solo lo atado al scroll (cámara del mapa, dibujo) |
+| Motion                       | Solo UI (tarjetas, popups, hover/tap)             |
+| Zod                          | Validación de datos y variables de entorno        |
+| Vitest + Playwright          | Tests unitarios y E2E                             |
+| pnpm                         | Gestor de paquetes (workspace)                    |
 
 El _por qué_ de cada elección y las alternativas descartadas se documentan en el README final.
 
