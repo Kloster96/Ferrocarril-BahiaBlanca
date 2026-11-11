@@ -46,6 +46,12 @@ pnpm dev
 
 Si falta el token, la app muestra un estado de error claro en lugar de romperse.
 
+## Seguridad
+
+- Sin secretos en el repo: `.env*` ignorado, `.env.example` documentado y gitleaks en CI.
+- CSP estricta con nonce por request, más `nosniff`, `Referrer-Policy`, `Permissions-Policy` y HSTS.
+- Dependencias con lockfile, `pnpm audit` en CI y Dependabot.
+
 ## Cómo uso la IA en este proyecto
 
 Este proyecto se construye con un flujo AI-native, con revisión humana de cada cambio:
