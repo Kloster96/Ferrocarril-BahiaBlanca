@@ -1,7 +1,12 @@
+import { MapLoader } from "@/features/map/map-loader";
+
 export default function HomePage() {
   return (
-    <main className="flex min-h-screen items-center justify-center p-8">
-      <h1 className="text-3xl font-semibold">El ferrocarril en Bahía Blanca</h1>
+    <main className="relative h-dvh w-full overflow-hidden">
+      <MapLoader />
+      <h1 className="pointer-events-none absolute top-4 left-4 z-20 max-w-xs rounded bg-white/90 px-4 py-2 text-lg font-semibold shadow">
+        El ferrocarril en Bahía Blanca
+      </h1>
     </main>
   );
 }

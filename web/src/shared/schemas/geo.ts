@@ -4,6 +4,7 @@ import { z } from "zod";
 export const osmIdSchema = z.string().regex(/^(node|way|relation)\/[1-9]\d*$/, "invalid OSM id");
 
 export const statusSchema = z.enum(["active", "disused", "abandoned"]);
+export type Status = z.infer<typeof statusSchema>;
 
 /** GeoJSON position, [longitude, latitude] (in that order). No altitude: the data has none. */
 export const positionSchema = z.tuple([z.number().min(-180).max(180), z.number().min(-90).max(90)]);
