@@ -1,4 +1,6 @@
 import type { NextConfig } from "next";
+// Must stay above the env import: ES imports run in order, and this one removes the token in Vercel previews.
+import "./src/lib/preview-env";
 // Importing for its side effect: a malformed or secret Mapbox token throws here, failing `next dev`/`next build`.
 import "./src/lib/env";
 
