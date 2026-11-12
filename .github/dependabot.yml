@@ -12,6 +12,16 @@ updates:
       minor-and-patch:
         update-types: [minor, patch]
     labels: [chore]
+    # Major versions of these three packages are outside what the toolchain supports. The evidence and the
+    # conditions to lift each rule are in CLAUDE.md, section "Decisiones de versión". Minor and patch
+    # updates still arrive normally.
+    ignore:
+      - dependency-name: eslint
+        update-types: ["version-update:semver-major"]
+      - dependency-name: typescript
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: github-actions
     directory: /

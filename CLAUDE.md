@@ -54,7 +54,13 @@ bajá a la última compatible **con evidencia** y explicá por qué.
 - **ESLint 9.x, no 10.x**: `eslint-config-next@16.4.6` depende de `eslint-plugin-react@7.37.5`,
   `eslint-plugin-import@2.32.0` y `eslint-plugin-jsx-a11y@6.10.2`, cuyos peers de `eslint` llegan hasta `^9`.
   ESLint 10 queda fuera del rango.
-- Revisar ambos puntos cuando salgan versiones nuevas de esos paquetes (Dependabot ayuda a detectarlo).
+- **`@types/node` 22.x, no 26.x**: el proyecto declara `engines.node >=22` y el CI corre Node 22. Los tipos de una
+  versión mayor pueden declarar APIs que Node 22 no tiene, y el compilador no lo avisaría. La versión de
+  `@types/node` acompaña a la versión mínima de Node.
+- **Dependabot ignora las versiones mayores de `eslint`, `typescript` y `@types/node`** (`.github/dependabot.yml`),
+  porque esas tres quedaron fuera de lo soportado por las razones de arriba. Ignorar la mayor no es olvidarla:
+  revisar los puntos cuando salgan versiones nuevas de `eslint-plugin-react`, `-import`, `-jsx-a11y` y
+  `typescript-eslint`, o cuando se suba el mínimo de Node, y recién ahí sacar la regla `ignore`.
 
 ## Estructura del repo (aprobada)
 
