@@ -6,8 +6,8 @@ resultados de `data/out/` a través de `/api/*`.
 | Carpeta        | Qué contiene                                                                    |
 | -------------- | ------------------------------------------------------------------------------- |
 | `data/scripts` | Extracción desde OpenStreetMap, limpieza y sus tests                            |
-| `data/raw`     | Copia fiel, sin tocar, de lo que devolvió Overpass (`osm-raw.json`), versionada |
-| `data/out`     | GeoJSON limpio de vías y estaciones, y `stats.json` con estadísticas por estado |
+| `data/raw`     | Copia fiel, sin tocar, de lo que devolvió Overpass (`osm-raw.json`, `area-raw.json`), versionada |
+| `data/out`     | GeoJSON limpio de vías y estaciones, `area.geojson` (área de estudio y máscara) y `stats.json` con estadísticas por estado |
 
 ## Cómo regenerar los datos
 
@@ -17,6 +17,8 @@ Requisitos: Node.js 22 o superior y `pnpm install` hecho en la raíz del repo.
 pnpm data:extract   # descarga de Overpass → data/raw/osm-raw.json
 pnpm data:clean     # data/raw → data/out/*.geojson
 pnpm data:stats     # data/out/*.geojson → data/out/stats.json
+pnpm data:extract-area  # descarga los límites de los dos partidos → data/raw/area-raw.json
+pnpm data:area      # data/raw/area-raw.json → data/out/area.geojson
 pnpm test           # incluye los tests de data/
 ```
 
@@ -90,3 +92,13 @@ La fuente de verdad es el texto de la licencia y la
 OSM es colaborativo: puede haber vías sin nombre, etiquetas contradictorias o estaciones mal ubicadas. Los datos
 históricos de las vías **no son una fuente verificada**. Lo que se afirma en la historia sale de las fuentes de
 cada capítulo (`web/src/content/chapters.ts`, campos `source` y `verified`), no de OSM.
+
+### Área de estudio (`area.geojson`)
+
+Dos features, en este orden: `area` (MultiPolygon: la unión de los partidos de Bahía Blanca y Coronel Rosales, para
+dibujar el borde) y `mask` (Polygon: el mundo con el área recortada como agujeros, para atenuar lo que queda afuera).
+El mapa solo las dibuja; no calcula geometría.
+
+- La frontera que comparten los dos partidos es la misma vía OSM en ambas relaciones: se descarta (aparece dos veces) y el resto se encadena en anillos cerrados.
+- Los anillos se simplifican con Douglas-Peucker a **50 m**. Sin eso son 28.484 vértices y 1,4 MB; con eso, ~184 KB.
+  Los islotes menores que la tolerancia desaparecen, a propósito.
