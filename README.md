@@ -3,7 +3,8 @@
 Una historia con scroll sobre el ferrocarril en Bahía Blanca: un mapa interactivo (Mapbox) que acompaña cada
 capítulo, dibuja las vías a medida que avanzás y, al final, se libera para explorar estaciones y datos.
 
-> **Estado:** en construcción. Se trabaja por fases; el plan completo está en [`CLAUDE.md`](./CLAUDE.md).
+> **Estado:** en construcción (Fase 2 cerrada: mapa base con vías y estaciones). Se trabaja por fases; el plan
+> completo está en [`CLAUDE.md`](./CLAUDE.md).
 
 ## Stack
 
@@ -46,10 +47,17 @@ pnpm dev
 
 Si falta el token, la app muestra un estado de error claro en lugar de romperse.
 
+## Antes de hacer un push
+
+`pnpm check` corre formato, lint, typecheck, tests y build, en el mismo orden que el CI (que usa ese mismo script).
+
 ## Seguridad
 
 - Sin secretos en el repo: `.env*` ignorado, `.env.example` documentado y gitleaks en CI.
 - CSP estricta con nonce por request, más `nosniff`, `Referrer-Policy`, `Permissions-Policy` y HSTS.
+  Los orígenes de Mapbox se abrieron solo después de medir las violaciones reales del navegador:
+  `api.mapbox.com` y `events.mapbox.com`, únicamente en `connect-src`, sin comodines. Verificado en Chromium y
+  Firefox, en desarrollo y en producción (cero violaciones). Safari queda por verificar (#45).
 - Dependencias con lockfile, `pnpm audit` en CI y Dependabot.
 
 ## Cómo uso la IA en este proyecto
