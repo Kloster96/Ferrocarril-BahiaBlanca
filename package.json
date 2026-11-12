@@ -13,6 +13,7 @@
     "lint": "pnpm --filter web lint",
     "typecheck": "pnpm --filter web typecheck && pnpm --filter web exec tsc -p ../data/tsconfig.json",
     "data:extract": "node data/scripts/extract-osm.ts",
+    "data:clean": "node data/scripts/clean-osm.ts",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "pnpm --filter web test"
