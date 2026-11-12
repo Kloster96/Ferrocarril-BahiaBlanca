@@ -1,10 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { areaCollectionSchema, type AreaCollection } from "@/shared/schemas/area";
 import { linesCollectionSchema, type LinesCollection } from "@/shared/schemas/line";
 import { stationsCollectionSchema, type StationsCollection } from "@/shared/schemas/station";
 
-export type GeoData = { lines: LinesCollection; stations: StationsCollection };
+export type GeoData = {
+  lines: LinesCollection;
+  stations: StationsCollection;
+  area: AreaCollection;
+};
 export type GeoDataState =
   { status: "loading" } | { status: "ready"; data: GeoData } | { status: "error" };
 
@@ -17,7 +22,7 @@ async function getJson(url: string, signal: AbortSignal): Promise<unknown> {
 }
 
 /**
- * Loads the map data from /api/*. The response is parsed again with the same schemas the server used: a
+ * Loads the map data (lines, stations, area) from /api/*. The response is parsed again with the same schemas the server used: a
  * network boundary is untrusted, and it gives the rest of the code real types instead of casts.
  * `attempt` lets the UI retry: a new value starts a new request.
  *
@@ -32,8 +37,9 @@ export function useGeoData(attempt: number): GeoDataState {
     Promise.all([
       getJson("/api/lines", controller.signal),
       getJson("/api/stations", controller.signal),
+      getJson("/api/area", controller.signal),
     ])
-      .then(([lines, stations]) => {
+      .then(([lines, stations, area]) => {
         setResult({
           attempt,
           state: {
@@ -41,6 +47,7 @@ export function useGeoData(attempt: number): GeoDataState {
             data: {
               lines: linesCollectionSchema.parse(lines),
               stations: stationsCollectionSchema.parse(stations),
+              area: areaCollectionSchema.parse(area),
             },
           },
         });

@@ -19,3 +19,12 @@ export const STATUS_COLOR: Record<Status, string> = {
 
 // The data comes from OpenStreetMap: the ODbL requires crediting it wherever the data is shown.
 export const OSM_ATTRIBUTION = "© OpenStreetMap contributors";
+
+// Placeholder, like the palette above. Outside the study area the map is desaturated and dimmed, so lines cut
+// at the border of the extraction read as the edge of the story and not as missing data.
+export const AREA_MASK = {
+  fill: "#e8ecf1",
+  fillOpacity: 0.6,
+  border: "#1d3557",
+  borderOpacity: 0.35,
+};
