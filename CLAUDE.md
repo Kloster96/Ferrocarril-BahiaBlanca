@@ -77,7 +77,7 @@ bajá a la última compatible **con evidencia** y explicá por qué.
    │  │  └─ dashboard/        # panel de datos y gráfico
    │  ├─ content/             # chapters.ts (source, verified, TODO(verify))
    │  ├─ shared/schemas/      # esquemas Zod; tipos con z.infer, compartidos entre API y front
-   │  ├─ lib/                 # lógica pura testeable (progreso, recorte de líneas; sin geometría de datos, ver "Decisiones de diseño")
+   │  ├─ lib/                 # lógica pura testeable (progreso; sin geometría de datos ni recorte de líneas, ver "Decisiones de diseño")
    │  └─ components/ui/       # átomos reutilizables
    └─ e2e/                    # Playwright
 ```
@@ -183,7 +183,7 @@ en el flujo de trabajo.
 ## Calidad
 
 - ESLint, Prettier, `tsc --noEmit` y build en CI (GitHub Actions) en cada PR.
-- Vitest para la lógica pura: en `web/` (progreso, recorte de líneas, validación) y en `data/` (haversine,
+- Vitest para la lógica pura: en `web/` (progreso, validación) y en `data/` (haversine,
   Douglas-Peucker, limpieza, stats). Playwright E2E básico: carga, scroll y cambio de capítulo activo.
 - **Accesibilidad**: `prefers-reduced-motion` (sin flyTo ni scrub: saltos directos y fades), contenido legible sin
   el mapa, foco visible, contraste AA, `aria-label` en el mapa, el texto como fuente principal de información.
@@ -202,7 +202,8 @@ en el flujo de trabajo.
 - **Fase 2 — Mapa base + API**: Route Handlers, componente Mapbox client-only que lee de `/api/*`, estilo sobrio,
   capas de vías y estaciones, atribuciones, verificación real de la CSP.
 - **Fase 3 — Scrollytelling**: layout sticky, ScrollTrigger por capítulo, flyTo sincronizado, dibujo de vías con scrub.
-  Primero que funcione, después que se vea bien.
+  Primero que funcione, después que se vea bien. **Requisito previo: la capa curada (`data/curated/`) con el
+  recorrido de cada capítulo**; sin ella no hay línea continua que dibujar.
 - **Fase 4 — UI y micro-interacciones**: tarjetas con Motion, indicador de progreso, estados activos, tipografía y
   paleta finales (habrá un mockup de Figma para esta fase).
 - **Fase 5 — Modo explorar**: liberar el mapa, popups accesibles, leyenda o filtro.
@@ -225,6 +226,12 @@ en el flujo de trabajo.
   Douglas-Peucker se implementan y testean en `data/scripts/`. Las stats se calculan ahí y se escriben en
   `data/out/stats.json`; `/api/stats` solo las valida con Zod y las sirve. Evitar la necesidad de código
   geométrico compartido, no resolverla. Si algo exige calcularse en runtime: frenar y discutir.
+- **Dibujo progresivo de vías con `line-trim-offset` de Mapbox, sin código de recorte propio en `web/`
+  (decisión de Luciano)**: la source GeoJSON de las vías va con `lineMetrics: true` y el scrub de GSAP actualiza
+  `line-trim-offset`. Esa propiedad recorta cada LineString por separado: con segmentos sueltos, todos se
+  dibujarían a la vez. Por eso cada capítulo necesita **un recorrido continuo** (segmentos unidos y ordenados en
+  una sola línea). Ese merge se **precalcula en `data/`** a partir de la capa curada (qué IDs de OSM forman el
+  recorrido de cada capítulo) y se escribe en `data/out/`. **La capa curada es requisito de la Fase 3.**
 
 ## Preguntas abiertas
 
