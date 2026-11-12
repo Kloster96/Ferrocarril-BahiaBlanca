@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { linesCollectionSchema } from "./line";
+import { statsSchema } from "./stats";
 import { stationsCollectionSchema } from "./station";
 
 // data/ has no Zod on purpose: it must not depend on web/. The check runs here, so CI fails when the
@@ -26,5 +27,15 @@ describe("data/out validates against the schemas of web/", () => {
     const lines = linesCollectionSchema.parse(read("lines.geojson"));
     const stations = stationsCollectionSchema.parse(read("stations.geojson"));
     expect(stations.metadata).toEqual(lines.metadata);
+  });
+
+  it("stats.json, with totals that match the GeoJSON it was computed from", () => {
+    const result = statsSchema.safeParse(read("stats.json"));
+    expect(result.error?.issues.slice(0, 5) ?? []).toEqual([]);
+    const lines = linesCollectionSchema.parse(read("lines.geojson"));
+    const stations = stationsCollectionSchema.parse(read("stations.geojson"));
+    expect(result.data?.lines.total.count).toBe(lines.features.length);
+    expect(result.data?.stations.total).toBe(stations.features.length);
+    expect(result.data?.metadata).toEqual(lines.metadata);
   });
 });

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { lineFeatureSchema, linesCollectionSchema } from "./line";
 import { stationFeatureSchema, stationsCollectionSchema } from "./station";
+import { statsSchema } from "./stats";
 
 const common = {
   status: "active",
@@ -168,5 +169,74 @@ describe("collections", () => {
     expect(linesCollectionSchema.safeParse(withMetadata({ fetchedAt: "ayer" })).success).toBe(
       false,
     );
+  });
+});
+
+describe("statsSchema", () => {
+  const lineStats = (count: number, trackKm: number) => ({ count, trackKm });
+  const stats = (overrides: Record<string, unknown> = {}) => ({
+    metadata,
+    lines: {
+      total: lineStats(3, 30),
+      byStatus: { active: lineStats(2, 20), disused: lineStats(1, 10), abandoned: lineStats(0, 0) },
+    },
+    stations: { total: 3, byStatus: { active: 1, disused: 0, abandoned: 2 } },
+    ...overrides,
+  });
+
+  it("accepts consistent stats and tolerates rounding in the km total", () => {
+    expect(statsSchema.safeParse(stats()).success).toBe(true);
+    const rounded = stats({
+      lines: {
+        total: lineStats(3, 30.001),
+        byStatus: {
+          active: lineStats(2, 20),
+          disused: lineStats(1, 10),
+          abandoned: lineStats(0, 0),
+        },
+      },
+    });
+    expect(statsSchema.safeParse(rounded).success).toBe(true);
+  });
+
+  it("rejects totals that disagree with the sum by status", () => {
+    const badLines = stats({
+      lines: {
+        total: lineStats(4, 30),
+        byStatus: {
+          active: lineStats(2, 20),
+          disused: lineStats(1, 10),
+          abandoned: lineStats(0, 0),
+        },
+      },
+    });
+    expect(statsSchema.safeParse(badLines).success).toBe(false);
+    const badKm = stats({
+      lines: {
+        total: lineStats(3, 99),
+        byStatus: {
+          active: lineStats(2, 20),
+          disused: lineStats(1, 10),
+          abandoned: lineStats(0, 0),
+        },
+      },
+    });
+    expect(statsSchema.safeParse(badKm).success).toBe(false);
+    expect(
+      statsSchema.safeParse(
+        stats({ stations: { total: 9, byStatus: { active: 1, disused: 0, abandoned: 2 } } }),
+      ).success,
+    ).toBe(false);
+  });
+
+  it("rejects negative or fractional counts and a missing status", () => {
+    expect(
+      statsSchema.safeParse(
+        stats({ stations: { total: 1.5, byStatus: { active: 1, disused: 0, abandoned: 0.5 } } }),
+      ).success,
+    ).toBe(false);
+    expect(
+      statsSchema.safeParse(stats({ stations: { total: 0, byStatus: { active: 0 } } })).success,
+    ).toBe(false);
   });
 });
