@@ -51,6 +51,19 @@ Si falta el token, la app muestra un estado de error claro en lugar de romperse.
 
 `pnpm check` corre formato, lint, typecheck, tests y build, en el mismo orden que el CI (que usa ese mismo script).
 
+## Deploy en Vercel
+
+- **Proyecto**: importar el repo en Vercel con **Root Directory = `web`** y activado "Include source files outside of
+  the Root Directory in the Build Step": la API lee `data/out/` (que vive fuera de `web/`) durante el build.
+  Framework, pnpm y Node (`engines`, ≥ 22) se detectan solos.
+- **Token de producción**: `NEXT_PUBLIC_MAPBOX_TOKEN` solo en el entorno **Production**, con un token público (`pk.`)
+  restringido por URL al dominio exacto de producción. Mapbox no acepta comodines.
+- **Previews por PR**: sin token, a propósito. Las URLs de preview (`proyecto-<hash>-equipo.vercel.app`) no se pueden
+  restringir sin comodines, y `*.vercel.app` equivale a no restringir. Los previews muestran el estado "falta el
+  token". Aunque la variable se configure por error para "All environments", `src/lib/preview-env.ts` la descarta
+  cuando `VERCEL_ENV=preview`, así que nunca llega al bundle del preview.
+- **Desarrollo local**: otro token, restringido a `localhost`, en `web/.env.local`.
+
 ## Seguridad
 
 - Sin secretos en el repo: `.env*` ignorado, `.env.example` documentado y gitleaks en CI.
