@@ -22,6 +22,8 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   // Do not advertise the framework in the X-Powered-By header.
   poweredByHeader: false,
+  // The repo's agent instructions live in CLAUDE.md; stop `next dev` from generating a second AGENTS.md.
+  agentRules: false,
   async headers() {
     return [{ source: "/(.*)", headers: securityHeaders }];
   },

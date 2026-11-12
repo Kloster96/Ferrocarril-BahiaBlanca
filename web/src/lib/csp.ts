@@ -6,8 +6,11 @@ type CspOptions = {
 /**
  * Builds the Content-Security-Policy for one request.
  *
- * Phase 0 baseline: nothing third-party is allowed. Mapbox domains are NOT listed yet on purpose;
- * they get added in Phase 2 only for the violations the browser actually reports.
+ * Third-party origins are opened only for violations the browser actually reported (issue #45), one by one:
+ * Mapbox needs `api.mapbox.com` (style, tiles, glyphs, sprites, session) and `events.mapbox.com` (telemetry,
+ * which Mapbox expects to be reachable). Both go in connect-src only. No `worker-src` is needed: Chromium and
+ * Firefox started the map worker without a violation. Verified in dev and in a production build (next start) on
+ * Chromium and Firefox: zero violations. WebKit (Safari) is NOT verified: the Playwright build failed to connect.
  */
 export function buildCsp({ nonce, isDev }: CspOptions): string {
   const directives = [
@@ -18,6 +21,7 @@ export function buildCsp({ nonce, isDev }: CspOptions): string {
     `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${isDev ? " 'unsafe-eval'" : ""}`,
     // Dev-only 'unsafe-inline': the HMR overlay injects styles without a nonce.
     `style-src 'self' ${isDev ? "'unsafe-inline'" : `'nonce-${nonce}'`}`,
+    "connect-src 'self' https://api.mapbox.com https://events.mapbox.com",
     "img-src 'self' blob: data:",
     "font-src 'self'",
     // Blocks <object>/<embed>/<applet>, a classic script-injection vector.

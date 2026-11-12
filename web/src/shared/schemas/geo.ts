@@ -1,9 +1,15 @@
 import { z } from "zod";
 
+// Zod 4 probes `Function("")` to compile validators with eval. Our CSP forbids eval, so the probe shows up as a
+// `script-src <- eval` violation in production even though Zod falls back safely. Skipping the JIT silences it;
+// the cost is irrelevant at this data size. Measured in Chromium and Firefox (issue #45).
+z.config({ jitless: true });
+
 /** `node/123`, `way/456`, `relation/789`: the OSM element a feature comes from. */
 export const osmIdSchema = z.string().regex(/^(node|way|relation)\/[1-9]\d*$/, "invalid OSM id");
 
 export const statusSchema = z.enum(["active", "disused", "abandoned"]);
+export type Status = z.infer<typeof statusSchema>;
 
 /** GeoJSON position, [longitude, latitude] (in that order). No altitude: the data has none. */
 export const positionSchema = z.tuple([z.number().min(-180).max(180), z.number().min(-90).max(90)]);

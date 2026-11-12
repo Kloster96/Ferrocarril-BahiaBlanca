@@ -26,8 +26,16 @@ describe("buildCsp", () => {
     expect(prod).toContain("base-uri 'self'");
   });
 
-  it("does not open any third-party origin yet", () => {
-    expect(prod).not.toMatch(/https?:|\*/);
+  it("opens only the Mapbox origins the browser reported, and no wildcard", () => {
+    // Measured in Chromium and Firefox (issue #45): these two were the only violations.
+    const origins = prod.match(/https?:\/\/[^\s;]+/g) ?? [];
+    expect(origins.sort()).toEqual(["https://api.mapbox.com", "https://events.mapbox.com"]);
+    expect(prod).not.toContain("*");
+  });
+
+  it("scopes those origins to connect-src only", () => {
+    const connect = prod.split("; ").find((d) => d.startsWith("connect-src"));
+    expect(connect).toBe("connect-src 'self' https://api.mapbox.com https://events.mapbox.com");
   });
 });
 
