@@ -41,6 +41,7 @@ const way = (id: number, tags: Record<string, string>): OsmElement => ({
     { lat: -38.7, lon: -62.2 },
     { lat: -38.71, lon: -62.21 },
   ],
+  nodes: [1001, 1002],
 });
 
 describe("geo", () => {
@@ -238,6 +239,26 @@ describe("nameKey", () => {
 });
 
 describe("cleanSnapshot", () => {
+  it("keeps only the first and last node id of a way", () => {
+    const { properties } = cleanLine({
+      ...way(1, { railway: "rail" }),
+      geometry: [
+        { lat: -38.7, lon: -62.2 },
+        { lat: -38.705, lon: -62.205 },
+        { lat: -38.71, lon: -62.21 },
+      ],
+      nodes: [10, 20, 30],
+    });
+    expect(properties.startNodeId).toBe(10);
+    expect(properties.endNodeId).toBe(30);
+    expect(properties).not.toHaveProperty("nodes");
+  });
+
+  it("fails on a track without node ids instead of inventing them", () => {
+    const { nodes: _nodes, ...withoutNodes } = way(1, { railway: "rail" });
+    expect(() => cleanLine(withoutNodes)).toThrow(/no node ids/);
+  });
+
   it("rejects relations instead of dropping them silently", () => {
     expect(() => cleanSnapshot([{ type: "relation", id: 1 }])).toThrow(/Relation 1/);
   });
@@ -267,6 +288,16 @@ describe("real snapshot (data/raw/osm-raw.json)", () => {
     for (const element of raw.elements) {
       const id = `${element.type}/${element.id}`;
       expect(lineIds.has(id) || stationIds.includes(id)).toBe(true);
+    }
+  });
+
+  it("gives every line start and end node ids that match the raw first and last node", () => {
+    const rawWays = new Map(raw.elements.map((e) => [`${e.type}/${e.id}`, e]));
+    for (const { properties } of lines) {
+      const nodes = rawWays.get(properties.id)?.nodes;
+      expect(nodes, properties.id).toBeDefined();
+      expect(properties.startNodeId, properties.id).toBe(nodes?.[0]);
+      expect(properties.endNodeId, properties.id).toBe(nodes?.at(-1));
     }
   });
 
