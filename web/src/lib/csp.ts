@@ -9,7 +9,8 @@ type CspOptions = {
  * Third-party origins are opened only for violations the browser actually reported (issue #45), one by one:
  * Mapbox needs `api.mapbox.com` (style, tiles, glyphs, sprites, session) and `events.mapbox.com` (telemetry,
  * which Mapbox expects to be reachable). Both go in connect-src only. No `worker-src` is needed: Chromium and
- * Firefox started the map worker without a violation. WebKit and the production build are NOT verified yet.
+ * Firefox started the map worker without a violation. Verified in dev and in a production build (next start) on
+ * Chromium and Firefox: zero violations. WebKit (Safari) is NOT verified: the Playwright build failed to connect.
  */
 export function buildCsp({ nonce, isDev }: CspOptions): string {
   const directives = [
