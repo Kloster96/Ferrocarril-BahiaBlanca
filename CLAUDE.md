@@ -84,6 +84,7 @@ bajá a la última compatible **con evidencia** y explicá por qué.
    │  ├─ content/             # chapters.ts (source, verified, TODO(verify))
    │  ├─ shared/schemas/      # esquemas Zod; tipos con z.infer, compartidos entre API y front
    │  ├─ lib/                 # lógica pura testeable (progreso; sin geometría de datos ni recorte de líneas, ver "Decisiones de diseño")
+   │  ├─ server/              # lectura y validación de data/out (solo servidor, se resuelve en el build)
    │  └─ components/ui/       # átomos reutilizables
    └─ e2e/                    # Playwright
 ```
