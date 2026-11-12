@@ -5,7 +5,7 @@ import { readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { LineFeature } from "./clean.ts";
-import { mergeRoute, type RouteInput } from "./routes.ts";
+import { cameraFor, mergeRoute, type RouteInput } from "./routes.ts";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -24,7 +24,11 @@ async function main(): Promise<void> {
     return {
       type: "Feature" as const,
       geometry: { type: "LineString" as const, coordinates: merged.coordinates },
-      properties: { chapterId: merged.chapterId, wayIds: merged.wayIds },
+      properties: {
+        chapterId: merged.chapterId,
+        wayIds: merged.wayIds,
+        camera: cameraFor(merged.coordinates),
+      },
     };
   });
 
@@ -36,7 +40,7 @@ async function main(): Promise<void> {
   );
   for (const { properties, geometry } of features) {
     console.log(
-      `${properties.chapterId}: ${properties.wayIds.length} ways -> ${geometry.coordinates.length} vertices`,
+      `${properties.chapterId}: ${properties.wayIds.length} ways -> ${geometry.coordinates.length} vertices, camera ${JSON.stringify(properties.camera)}`,
     );
   }
 }

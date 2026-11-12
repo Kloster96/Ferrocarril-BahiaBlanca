@@ -4,6 +4,7 @@ import type { z } from "zod";
 import { areaCollectionSchema } from "@/shared/schemas/area";
 import { linesCollectionSchema } from "@/shared/schemas/line";
 import { stationsCollectionSchema } from "@/shared/schemas/station";
+import { routesCollectionSchema } from "@/shared/schemas/route";
 import { statsSchema } from "@/shared/schemas/stats";
 
 // data/ lives next to web/, outside the Next.js project root. The handlers that call this are static
@@ -37,3 +38,4 @@ export const loadStations = (dir?: string) =>
   loadJson("stations.geojson", stationsCollectionSchema, dir);
 export const loadStats = (dir?: string) => loadJson("stats.json", statsSchema, dir);
 export const loadArea = (dir?: string) => loadJson("area.geojson", areaCollectionSchema, dir);
+export const loadRoutes = (dir?: string) => loadJson("routes.geojson", routesCollectionSchema, dir);
