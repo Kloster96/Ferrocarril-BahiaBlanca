@@ -44,9 +44,11 @@ export default function MapView() {
       style: MAP_STYLE,
       center: INITIAL_VIEW.center,
       zoom: INITIAL_VIEW.zoom,
+      // Story mode: the page scrolls, the map does not take gestures (a swipe must not pan it, the wheel must
+      // not zoom it). Explore mode (Phase 5) turns this on and brings the zoom control back.
+      interactive: false,
     });
     mapRef.current = map;
-    map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), "top-right");
     map.on("load", () => setMapLoaded(true));
     // Non-fatal: the map stays usable, so this is a notice and not a blocking state.
     map.on("error", (event) => {
