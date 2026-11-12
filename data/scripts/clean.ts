@@ -23,6 +23,8 @@ export type OsmElement = {
   lat?: number;
   lon?: number;
   geometry?: LatLon[];
+  /** OSM node ids of a way, in order. Same length as `geometry`. */
+  nodes?: number[];
 };
 
 type Tags = Record<string, string>;
@@ -41,6 +43,10 @@ type Common = {
 };
 
 export type LineProperties = Common & {
+  /** OSM id of the first node of the way. Lets consumers chain ways by shared endpoint. */
+  startNodeId: number;
+  /** OSM id of the last node of the way. */
+  endNodeId: number;
   ref: string | null;
   gauge: string | null;
   service: string | null;
@@ -140,6 +146,12 @@ export function cleanLine(element: OsmElement): LineFeature {
   if (element.type !== "way" || !element.geometry || element.geometry.length < 2) {
     throw new Error(`Track ${elementId(element)} is not a way with at least two points.`);
   }
+  // Endpoints only: that is all a consumer needs to chain ways, and it keeps data/out/ small.
+  const startNodeId = element.nodes?.[0];
+  const endNodeId = element.nodes?.at(-1);
+  if (startNodeId === undefined || endNodeId === undefined) {
+    throw new Error(`Track ${elementId(element)} has no node ids; re-run "pnpm data:extract".`);
+  }
   const tags = tagsOf(element);
   const { status, osmTag, reasons } = trackStatus(element);
 
@@ -151,6 +163,8 @@ export function cleanLine(element: OsmElement): LineFeature {
     },
     properties: {
       ...common(element, status, osmTag, reasons),
+      startNodeId,
+      endNodeId,
       ref: tags.ref ?? null,
       gauge: tags.gauge ?? null,
       service: tags.service ?? null,
