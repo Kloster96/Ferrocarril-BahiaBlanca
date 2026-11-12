@@ -28,3 +28,6 @@ export const AREA_MASK = {
   border: "#1d3557",
   borderOpacity: 0.35,
 };
+
+// Placeholder, like the rest of the palette: the line that the story draws, distinct from the status colours.
+export const ROUTE_COLOR = "#7c3aed";

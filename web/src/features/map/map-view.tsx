@@ -10,6 +10,7 @@ import { useStoryStore } from "@/features/story/story-provider";
 import { INITIAL_VIEW, MAP_LABEL, MAP_STYLE } from "./constants";
 import { MapMessage, MapSkeleton } from "./map-message";
 import { addRailwayLayers } from "./railway-layers";
+import { createRouteUpdater } from "./route-layers";
 import { useGeoData } from "./use-geo-data";
 
 let webglSupport: boolean | undefined;
@@ -103,6 +104,20 @@ export default function MapView() {
     };
     follow(false); // opened mid-story (a reload keeps the scroll): go straight there
     return story.subscribe(() => follow(true));
+  }, [mapLoaded, geo, story]);
+
+  // The routes are drawn as the story advances. Same approach as the camera: read the store imperatively, so
+  // scrolling never re-renders React.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !mapLoaded || geo.status !== "ready") return;
+    const update = createRouteUpdater(
+      map,
+      chapters.map((chapter) => chapter.id),
+      geo.data.routes.features.map((f) => f.properties.chapterId),
+    );
+    update(story.get()); // opened mid-story: draw what the reader has already gone through
+    return story.subscribe(() => update(story.get()));
   }, [mapLoaded, geo, story]);
 
   if (mapboxToken.status !== "ok") {
