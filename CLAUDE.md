@@ -238,6 +238,19 @@ en el flujo de trabajo.
   dibujarían a la vez. Por eso cada capítulo necesita **un recorrido continuo** (segmentos unidos y ordenados en
   una sola línea). Ese merge se **precalcula en `data/`** a partir de la capa curada (qué IDs de OSM forman el
   recorrido de cada capítulo) y se escribe en `data/out/`. **La capa curada es requisito de la Fase 3.**
+  - **Verificado (issue #23, `mapbox-gl` 3.34.2, 2026-11-12)** con una página de prueba en Chromium: dos
+    LineStrings del mismo largo y un conteo de píxeles visibles de cada una.
+    - `lineMetrics: true` **es obligatorio**: sin él, Mapbox rechaza la capa con un error explícito
+      (`line-trim-offset requires the GeoJSON source to have lineMetrics enabled`).
+    - **Recorta cada LineString por separado**: con `[0.5, 1]` las dos muestran 50 %, con `[0.8, 1]` las dos 80 %.
+    - **`[inicio, fin]` es la parte oculta**, no la visible: `[0, 1]` oculta todo y `[0.8, 1]` deja ver el primer
+      80 %. Para dibujar de a poco desde el inicio del recorrido, el offset es `[progreso, 1]`.
+    - Es una propiedad de la **capa** y no admite datos por feature: un solo valor afecta a todas las líneas de la
+      capa a la vez. **Una capa por recorrido de capítulo**, no una capa única con todos los recorridos.
+    - La dirección de dibujo es la de las coordenadas: el merge de `data/` tiene que dejar cada recorrido
+      orientado en el sentido de la historia.
+    - Límites de la doc: `feature-state` y expresiones de datos no figuran como soportados para esta propiedad,
+      y `line-trim-color` y `line-trim-fade-range` son experimentales (3.6.0+).
 
 ## Preguntas abiertas
 
