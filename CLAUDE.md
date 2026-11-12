@@ -137,7 +137,10 @@ labels (`feature`, `bug`, `chore`, `docs`, `a11y`, `security`) y un milestone po
 
 **Protección de `main`:** después del primer commit de setup, proponer exigir PR y CI verde, y configurarlo solo con el OK.
 
-**Prohibido sin confirmación explícita:** `git push --force` (cualquier variante), `git reset --hard` sobre
+**Force-push:** `git push --force-with-lease` está permitido **solo en ramas de PR**, como parte de un rebase que
+Luciano pidió. Nunca en `main`, y cualquier otro force-push requiere confirmación explícita.
+
+**Prohibido sin confirmación explícita:** `git push --force` (cualquier variante, salvo la excepción de arriba), `git reset --hard` sobre
 trabajo pusheado, reescribir historial de `main`, borrar ramas remotas o el repo, cambiar visibilidad o settings
 de seguridad del repo.
 
