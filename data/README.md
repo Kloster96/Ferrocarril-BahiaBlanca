@@ -18,6 +18,7 @@ pnpm data:extract   # descarga de Overpass → data/raw/osm-raw.json
 pnpm data:clean     # data/raw → data/out/*.geojson
 pnpm data:stats     # data/out/*.geojson → data/out/stats.json
 pnpm data:extract-area  # descarga los límites de los dos partidos → data/raw/area-raw.json
+pnpm data:routes    # data/out/lines.geojson + data/curated/routes.json → data/out/routes.geojson
 pnpm data:area      # data/raw/area-raw.json → data/out/area.geojson
 pnpm test           # incluye los tests de data/
 ```
@@ -102,3 +103,15 @@ El mapa solo las dibuja; no calcula geometría.
 - La frontera que comparten los dos partidos es la misma vía OSM en ambas relaciones: se descarta (aparece dos veces) y el resto se encadena en anillos cerrados.
 - Los anillos se simplifican con Douglas-Peucker a **50 m**. Sin eso son 28.484 vértices y 1,4 MB; con eso, ~184 KB.
   Los islotes menores que la tolerancia desaparecen, a propósito.
+
+### Recorridos por capítulo (`routes.geojson`)
+
+`pnpm data:routes` une las vías de cada capítulo (`data/curated/routes.json`) en **una sola LineString continua**, que
+es lo que dibuja `line-trim-offset`. Lee solo `data/out/lines.geojson` y la capa curada, nunca `data/raw/`.
+
+- **Empalmar**: dos vías consecutivas empalman si **comparten el nodo de OSM de un extremo** (`startNodeId` /
+  `endNodeId`). No hay tolerancia de distancia: con IDs de nodo, un casi-empalme es un hueco real.
+- **Dirección**: la de las vías en OSM es arbitraria, así que una vía invertida no es un error: se invierte para
+  continuar el recorrido.
+- **Falla** solo ante un hueco real o un ID de OSM inexistente, con un mensaje que nombra el capítulo y las vías.
+- Si cambiás `routes.json`, regenerá con `pnpm data:routes`: un test falla si `routes.geojson` quedó desactualizado.
