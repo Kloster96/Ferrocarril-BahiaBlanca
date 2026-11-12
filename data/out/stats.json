@@ -1,0 +1,36 @@
+{
+  "metadata": {
+    "source": "OpenStreetMap",
+    "license": "ODbL 1.0 — © OpenStreetMap contributors — https://www.openstreetmap.org/copyright",
+    "osmBaseTimestamp": "2026-11-11T20:26:43Z",
+    "fetchedAt": "2026-11-11T20:28:01.232Z"
+  },
+  "lines": {
+    "total": {
+      "count": 313,
+      "trackKm": 579.882
+    },
+    "byStatus": {
+      "active": {
+        "count": 252,
+        "trackKm": 471.673
+      },
+      "disused": {
+        "count": 50,
+        "trackKm": 64.45
+      },
+      "abandoned": {
+        "count": 11,
+        "trackKm": 43.759
+      }
+    }
+  },
+  "stations": {
+    "total": 29,
+    "byStatus": {
+      "active": 15,
+      "disused": 9,
+      "abandoned": 5
+    }
+  }
+}
