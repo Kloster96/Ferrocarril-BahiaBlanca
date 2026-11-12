@@ -7,7 +7,7 @@ resultados de `data/out/` a través de `/api/*`.
 | -------------- | ------------------------------------------------------------------------------- |
 | `data/scripts` | Extracción desde OpenStreetMap, limpieza y sus tests                            |
 | `data/raw`     | Copia fiel, sin tocar, de lo que devolvió Overpass (`osm-raw.json`), versionada |
-| `data/out`     | GeoJSON limpio de vías y estaciones (`lines.geojson`, `stations.geojson`)       |
+| `data/out`     | GeoJSON limpio de vías y estaciones, y `stats.json` con estadísticas por estado |
 
 ## Cómo regenerar los datos
 
@@ -16,6 +16,7 @@ Requisitos: Node.js 22 o superior y `pnpm install` hecho en la raíz del repo.
 ```bash
 pnpm data:extract   # descarga de Overpass → data/raw/osm-raw.json
 pnpm data:clean     # data/raw → data/out/*.geojson
+pnpm data:stats     # data/out/*.geojson → data/out/stats.json
 pnpm test           # incluye los tests de data/
 ```
 
@@ -46,6 +47,20 @@ Están explicadas en el encabezado de `data/scripts/clean.ts`. Las que importan 
   verifique.
 - **Lo que falta es `null`.** No se inventa nada. Un tagging que el script no entiende lanza un error.
 - Las vías **no se agrupan en ramales**: eso vendrá de una capa curada (ver `CLAUDE.md`).
+- **Cada vía trae `startNodeId` y `endNodeId`**: los IDs de OSM de su primer y último nodo. Solo los extremos,
+  no todos los nodos. Sirven para encadenar vías que comparten un extremo, y quien los consuma lee `data/out/`,
+  nunca el crudo. Si una vía del crudo no trae nodos, la limpieza falla en lugar de inventarlos.
+
+### Estadísticas (`stats.json`)
+
+`pnpm data:stats` lee `data/out/*.geojson` (no el crudo) y escribe `data/out/stats.json`: cantidad y km de vía,
+y cantidad de estaciones, por estado (`active`, `disused`, `abandoned`) y en total. `/api/stats` solo valida y
+sirve este archivo; no calcula nada.
+
+- **`trackKm` no es el largo del recorrido**: es la suma del largo de todas las vías mapeadas. Si OSM dibuja
+  una doble vía o un desvío como vías aparte, cada una suma.
+- El archivo no lleva fecha de generación, para que sea reproducible: las mismas entradas dan el mismo archivo.
+- Si regenerás las vías, regenerá también las stats. Un test falla si `stats.json` no coincide con el GeoJSON.
 
 ## Licencia y atribución de los datos
 
