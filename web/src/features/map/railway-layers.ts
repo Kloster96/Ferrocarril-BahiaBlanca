@@ -1,5 +1,6 @@
 import type mapboxgl from "mapbox-gl";
 import { AREA_MASK, OSM_ATTRIBUTION, STATUS_COLOR } from "./constants";
+import { addRouteLayers } from "./route-layers";
 import type { GeoData } from "./use-geo-data";
 
 const statusColor: mapboxgl.ExpressionSpecification = [
@@ -27,7 +28,10 @@ const lineWidth: mapboxgl.ExpressionSpecification = [
  * `line-dasharray` cannot depend on feature data. Features flagged `needsReview` are drawn like the rest:
  * hiding them would hide history.
  */
-export function addRailwayLayers(map: mapboxgl.Map, { lines, stations, area }: GeoData): void {
+export function addRailwayLayers(
+  map: mapboxgl.Map,
+  { lines, stations, area, routes }: GeoData,
+): void {
   map.addSource("lines", { type: "geojson", data: lines, attribution: OSM_ATTRIBUTION });
   // One source, two features (area, mask): each layer picks its own with a filter on `kind`.
   map.addSource("area", { type: "geojson", data: area, attribution: OSM_ATTRIBUTION });
@@ -92,6 +96,8 @@ export function addRailwayLayers(map: mapboxgl.Map, { lines, stations, area }: G
       "circle-stroke-width": 1.5,
     },
   });
+  // The stations layer has to exist first: the routes are inserted just below it.
+  addRouteLayers(map, routes, "stations");
   map.addLayer({
     id: "station-names",
     type: "symbol",
