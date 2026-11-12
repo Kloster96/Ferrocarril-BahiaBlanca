@@ -127,6 +127,8 @@ corra `gh auth login` y esperá. **Nunca** pidas un token ni lo pegues en un arc
 3. **Un commit por cambio lógico**, con Conventional Commits en inglés y, cuando haga falta, un cuerpo con el _por qué_.
 4. **Antes de cada commit**: `git status` y `git diff --staged`; confirmá que no entren secretos, `.env*`,
    `node_modules`, builds ni archivos temporales, y que pasen lint, typecheck y tests.
+   **Antes de cada push**: `pnpm check` (formato, lint, typecheck, tests y build, en el mismo orden que el CI,
+   que corre ese mismo script). Si falla en local, va a fallar en el CI.
 5. Push de la rama y PR con `gh pr create`, plantilla: **Qué / Por qué / Cómo probarlo / Capturas /
    Decisiones y alternativas**. Vinculá el issue (`Closes #N`).
 6. **No mergees vos.** Avisá que el PR está listo; Luciano lo revisa y lo mergea (squash merge).

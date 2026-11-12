@@ -19,7 +19,8 @@
     "data:area": "node data/scripts/clean-area.ts",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test": "pnpm --filter web test"
+    "test": "pnpm --filter web test",
+    "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build"
   },
   "devDependencies": {
     "prettier": "3.9.10",

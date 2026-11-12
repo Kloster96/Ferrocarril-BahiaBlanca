@@ -5,6 +5,49 @@ Todos los cambios relevantes de este proyecto se documentan en este archivo.
 El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y el proyecto usa
 [versionado semántico](https://semver.org/lang/es/). Cada fase cierra con una versión: `v0.1.0` = Fase 0 … `v0.7.0` = Fase 7.
 
+## [0.3.0] - 2026-11-12
+
+Fase 2 — Mapa base + API.
+
+### Agregado
+
+- API con Route Handlers estáticos: `/api/lines`, `/api/stations`, `/api/stats` y `/api/area`. Leen `data/out/`
+  en el build y lo validan con Zod: datos inválidos rompen el build, no la UI. Cualquier otra ruta `/api/*`
+  responde 404 con el formato único `{ error: { code, message } }`.
+- Mapa base de Mapbox (solo cliente, sin SSR) que lee de `/api/*`: vías (las que no están activas, punteadas),
+  estaciones y nombres desde el zoom 11. Estados de carga (skeleton), falta de token, WebGL no disponible y error
+  de datos con "Reintentar"; un aviso aparte si fallan algunos tiles.
+- Atribuciones visibles de Mapbox y de OpenStreetMap.
+- Máscara del área de estudio: lo que queda fuera de los partidos de Bahía Blanca y Coronel Rosales se desatura
+  y oscurece con un borde suave, para que las vías cortadas se lean como el límite de la historia. El polígono
+  sale de OSM (`pnpm data:extract-area` y `pnpm data:area`) y se sirve por `/api/area`.
+- CSP real: `connect-src` abre solo `api.mapbox.com` y `events.mapbox.com`, los dos orígenes que el navegador
+  reportó. Verificada en Chromium y Firefox, en desarrollo y en producción: cero violaciones.
+- Página de laboratorio `/dev/line-trim` (solo desarrollo) con la prueba de `line-trim-offset`.
+- `pnpm check`: formato, lint, typecheck, tests y build, en el orden del CI. El CI corre ese mismo script.
+
+### Decisiones
+
+- `line-trim-offset` (verificado en mapbox-gl 3.34.2): exige `lineMetrics: true`, recorta cada LineString por
+  separado y `[inicio, fin]` es la parte **oculta**, así que el dibujo progresivo es `[progreso, 1]`.
+- La máscara va **encima** de las vías y **debajo** de las estaciones: debajo no atenuaría los tramos que salen del
+  área. Los colores son provisorios hasta la paleta de la Fase 4.
+- Douglas-Peucker a 50 m solo para el área (1,4 MB → 184 KB); los islotes menores desaparecen. La función sirve
+  para #29, que sigue sin aplicarse a las vías.
+- Zod corre con `jitless: true`: su sonda de `eval` aparecía como violación de CSP en producción aunque cayera a
+  un camino seguro.
+- Vista inicial fija, sin `fitBounds`: calcular límites en runtime pondría geometría en `web/`.
+- `agentRules: false`: Next no genera un `AGENTS.md` propio; las reglas viven en `CLAUDE.md`.
+- `--force-with-lease` está permitido solo en ramas de PR, en un rebase que pidió el dueño del repo.
+
+### Deuda conocida
+
+- **Safari/WebKit sin verificar** (#45, Fase 7): el WebKit de Playwright no conectó en esta máquina. Se prueba en un
+  iPhone cuando el sitio esté en Vercel.
+- **Capa curada pendiente**: sin ella no hay ramales ni recorridos por capítulo (#24, requisito de la Fase 3).
+- **Contenido sin verificar**: todos los capítulos siguen siendo `TODO(verify)`.
+- **Costa más gruesa al acercar**: con 50 m de tolerancia, el borde del área pierde detalle desde el zoom ~13.
+
 ## [0.2.0] - 2026-11-12
 
 Fase 1 — Datos.

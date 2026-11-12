@@ -41,11 +41,8 @@ jobs:
             exit 1
           fi
 
-      - run: pnpm format:check
-      - run: pnpm lint
-      - run: pnpm typecheck
-      - run: pnpm test
-      - run: pnpm build
+      # The same script developers run before every push (see CLAUDE.md): local and CI cannot diverge.
+      - run: pnpm check
 
       - name: Audit dependencies
         run: pnpm audit --audit-level=high
