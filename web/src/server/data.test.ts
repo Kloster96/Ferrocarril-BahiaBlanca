@@ -3,6 +3,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { GET as getCatchAll } from "../app/api/[...slug]/route";
+import { GET as getArea } from "../app/api/area/route";
 import { GET as getLines } from "../app/api/lines/route";
 import { GET as getStations } from "../app/api/stations/route";
 import { GET as getStats } from "../app/api/stats/route";
@@ -31,6 +32,11 @@ describe("route handlers", () => {
     expect(lines.type).toBe("FeatureCollection");
     expect(lines.features.length).toBeGreaterThan(0);
     expect((await (await getStations()).json()).features.length).toBeGreaterThan(0);
+    const area = await (await getArea()).json();
+    expect(area.features.map((f: { properties: { kind: string } }) => f.properties.kind)).toEqual([
+      "area",
+      "mask",
+    ]);
     expect((await (await getStats()).json()).lines.total.count).toBe(lines.features.length);
   });
 

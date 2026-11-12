@@ -1,6 +1,7 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import type { z } from "zod";
+import { areaCollectionSchema } from "@/shared/schemas/area";
 import { linesCollectionSchema } from "@/shared/schemas/line";
 import { stationsCollectionSchema } from "@/shared/schemas/station";
 import { statsSchema } from "@/shared/schemas/stats";
@@ -35,3 +36,4 @@ export const loadLines = (dir?: string) => loadJson("lines.geojson", linesCollec
 export const loadStations = (dir?: string) =>
   loadJson("stations.geojson", stationsCollectionSchema, dir);
 export const loadStats = (dir?: string) => loadJson("stats.json", statsSchema, dir);
+export const loadArea = (dir?: string) => loadJson("area.geojson", areaCollectionSchema, dir);
