@@ -3,10 +3,10 @@
 Todo lo que hay en `data/` se usa para **producir** los datos. Nada de esto va al cliente: la app lee los
 resultados de `data/out/` a través de `/api/*`.
 
-| Carpeta        | Qué contiene                                                                    |
-| -------------- | ------------------------------------------------------------------------------- |
-| `data/scripts` | Extracción desde OpenStreetMap, limpieza y sus tests                            |
-| `data/raw`     | Copia fiel, sin tocar, de lo que devolvió Overpass (`osm-raw.json`, `area-raw.json`), versionada |
+| Carpeta        | Qué contiene                                                                                                               |
+| -------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `data/scripts` | Extracción desde OpenStreetMap, limpieza y sus tests                                                                       |
+| `data/raw`     | Copia fiel, sin tocar, de lo que devolvió Overpass (`osm-raw.json`, `area-raw.json`), versionada                           |
 | `data/out`     | GeoJSON limpio de vías y estaciones, `area.geojson` (área de estudio y máscara) y `stats.json` con estadísticas por estado |
 
 ## Cómo regenerar los datos
