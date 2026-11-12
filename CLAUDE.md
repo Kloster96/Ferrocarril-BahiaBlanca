@@ -64,8 +64,9 @@ bajá a la última compatible **con evidencia** y explicá por qué.
 ├─ pnpm-workspace.yaml
 ├─ .github/  workflows/ci.yml · dependabot.yml · PULL_REQUEST_TEMPLATE.md
 ├─ data/                      # extracción, nada de esto va al cliente
-│  ├─ scripts/                # Overpass → limpieza → simplificación
-│  └─ out/                    # GeoJSON procesado (versionado)
+│  ├─ scripts/                # Overpass → limpieza → simplificación → stats; toda la geometría (haversine, Douglas-Peucker) y sus tests
+│  ├─ curated/                # capa curada a mano (ramales, compañía histórica); cada dato con fuente e IDs de OSM
+│  └─ out/                    # GeoJSON procesado y stats.json (versionados)
 └─ web/
    ├─ next.config.ts          # headers de seguridad / CSP
    ├─ src/
@@ -76,7 +77,7 @@ bajá a la última compatible **con evidencia** y explicá por qué.
    │  │  └─ dashboard/        # panel de datos y gráfico
    │  ├─ content/             # chapters.ts (source, verified, TODO(verify))
    │  ├─ shared/schemas/      # esquemas Zod; tipos con z.infer, compartidos entre API y front
-   │  ├─ lib/                 # lógica pura testeable (progreso, recorte de líneas, haversine)
+   │  ├─ lib/                 # lógica pura testeable (progreso; sin geometría de datos ni recorte de líneas, ver "Decisiones de diseño")
    │  └─ components/ui/       # átomos reutilizables
    └─ e2e/                    # Playwright
 ```
@@ -94,7 +95,7 @@ Sin backend separado: los datos son estáticos y versionados; la API son Route H
 4. **Explicá lo no obvio.** Comentarios solo donde el código no se explica solo (por qué, no qué). Si escribís algo
    complejo (sincronización scroll ↔ cámara, interpolación de líneas, `setFeatureState`), explicalo en el resumen.
 5. **Nada de dependencias innecesarias.** Antes de agregar un paquete, justificá por qué no alcanza con lo que ya hay
-   (por ejemplo: haversine propia y testeada en vez de `@turf/length`).
+   (por ejemplo: haversine propia y testeada, en `data/scripts/`, en vez de `@turf/length`).
 6. Si algo te bloquea o hay una ambigüedad, preguntá en vez de suponer.
 7. **Entorno**: Windows (PowerShell, Node con nvm-windows). No hay brew; usá herramientas nativas o winget.
 
@@ -175,13 +176,15 @@ en el flujo de trabajo.
 - Formato de error único: `{ error: { code, message } }` con el status HTTP correcto.
 - Cache adecuado para datos estáticos (verificar la semántica de caché en la documentación de la versión de Next instalada).
 - **El mapa lee de `/api/*` desde la Fase 2**: una sola fuente de verdad, con estados de carga y error reales.
-- Stats verificables, calculadas desde el GeoJSON de OSM (km de vía por ramal, estaciones por línea).
+- Stats verificables, calculadas desde el GeoJSON de OSM (km de vía por ramal, estaciones por línea) **en `data/`**
+  y escritas en `data/out/stats.json`. `/api/stats` solo las valida con Zod y las sirve: no calcula nada.
+  Si algo parece necesitar cálculo geométrico en runtime, frená y discutilo antes de implementarlo.
 
 ## Calidad
 
 - ESLint, Prettier, `tsc --noEmit` y build en CI (GitHub Actions) en cada PR.
-- Vitest para la lógica pura (progreso, recorte de líneas, haversine, validación). Playwright E2E básico:
-  carga, scroll y cambio de capítulo activo.
+- Vitest para la lógica pura: en `web/` (progreso, validación) y en `data/` (haversine,
+  Douglas-Peucker, limpieza, stats). Playwright E2E básico: carga, scroll y cambio de capítulo activo.
 - **Accesibilidad**: `prefers-reduced-motion` (sin flyTo ni scrub: saltos directos y fades), contenido legible sin
   el mapa, foco visible, contraste AA, `aria-label` en el mapa, el texto como fuente principal de información.
 - **Performance**: mapa con import dinámico y sin SSR, GeoJSON simplificado, resaltado con `setFeatureState`
@@ -199,7 +202,8 @@ en el flujo de trabajo.
 - **Fase 2 — Mapa base + API**: Route Handlers, componente Mapbox client-only que lee de `/api/*`, estilo sobrio,
   capas de vías y estaciones, atribuciones, verificación real de la CSP.
 - **Fase 3 — Scrollytelling**: layout sticky, ScrollTrigger por capítulo, flyTo sincronizado, dibujo de vías con scrub.
-  Primero que funcione, después que se vea bien.
+  Primero que funcione, después que se vea bien. **Requisito previo: la capa curada (`data/curated/`) con el
+  recorrido de cada capítulo**; sin ella no hay línea continua que dibujar.
 - **Fase 4 — UI y micro-interacciones**: tarjetas con Motion, indicador de progreso, estados activos, tipografía y
   paleta finales (habrá un mockup de Figma para esta fase).
 - **Fase 5 — Modo explorar**: liberar el mapa, popups accesibles, leyenda o filtro.
@@ -209,19 +213,32 @@ en el flujo de trabajo.
   Incluye medir con Lighthouse el costo real del render dinámico que impone la CSP con nonce y documentar
   la decisión con números (mantener nonce vs. SRI experimental).
 
+## Decisiones de diseño
+
+- **Ramales y compañía histórica vienen de una capa curada, no de los tags de OSM (decisión de Luciano)**: la
+  limpieza NO agrupa las vías en ramales (141 de 313 vías no tienen `description` ni `ref`, y los que sí tienen se
+  contradicen: `R-26` figura como "Ingeniero White" y como "Ramal Empalme Grünbein - Bahía Blanca"; además
+  `description` mezcla nombres de ramal con nombres de compañía). Agrupar automáticamente sería adivinar.
+  La agrupación y la compañía histórica van a vivir en `data/curated/`, con **fuente por dato** y referenciando
+  **IDs de OSM**. Se implementa cuando Luciano tenga la investigación; hasta entonces se conservan `ref`,
+  `description`, `operator` y `network` tal cual vienen de OSM.
+- **Toda la geometría vive en `data/`, nada se comparte con `web/` (decisión de Luciano)**: haversine y
+  Douglas-Peucker se implementan y testean en `data/scripts/`. Las stats se calculan ahí y se escriben en
+  `data/out/stats.json`; `/api/stats` solo las valida con Zod y las sirve. Evitar la necesidad de código
+  geométrico compartido, no resolverla. Si algo exige calcularse en runtime: frenar y discutir.
+- **Dibujo progresivo de vías con `line-trim-offset` de Mapbox, sin código de recorte propio en `web/`
+  (decisión de Luciano)**: la source GeoJSON de las vías va con `lineMetrics: true` y el scrub de GSAP actualiza
+  `line-trim-offset`. Esa propiedad recorta cada LineString por separado: con segmentos sueltos, todos se
+  dibujarían a la vez. Por eso cada capítulo necesita **un recorrido continuo** (segmentos unidos y ordenados en
+  una sola línea). Ese merge se **precalcula en `data/`** a partir de la capa curada (qué IDs de OSM forman el
+  recorrido de cada capítulo) y se escribe en `data/out/`. **La capa curada es requisito de la Fase 3.**
+
 ## Preguntas abiertas
 
 - **Fase 2 — vías cortadas en el límite del área**: la extracción trae solo lo que cae dentro de los partidos
   de Bahía Blanca y Coronel Rosales, así que las vías que salen hacia otros partidos (Tornquist, Villarino,
   Patagones…) terminan abruptamente en el borde. Decidir cómo mostrarlo: fade al final de la vía, recorte con
   margen, ampliar el área con un margen alrededor, u otra opción.
-
-- **Fase 1/3 — agrupar vías en ramales (decisión de Luciano)**: la limpieza NO agrupa las vías en ramales.
-  141 de 313 vías no tienen `description` ni `ref`, y los que sí tienen se contradicen (`R-26` figura como
-  "Ingeniero White" y como "Ramal Empalme Grünbein - Bahía Blanca"). Además `description` mezcla nombres de ramal
-  con nombres de compañía ("Ferrocarril Rosario a Puerto Belgrano"). Agrupar automáticamente sería adivinar.
-  Hasta decidir el criterio (a mano, por capítulo o con una tabla verificada) se conservan `ref`, `description`,
-  `operator` y `network` tal cual vienen de OSM.
 
 ## README final (en español)
 
