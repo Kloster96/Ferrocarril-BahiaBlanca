@@ -1,13 +1,20 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
+import { curatedRoutesSchema } from "./curated";
 import { linesCollectionSchema } from "./line";
+import { routesCollectionSchema } from "./route";
 import { statsSchema } from "./stats";
 import { stationsCollectionSchema } from "./station";
 
 // data/ has no Zod on purpose: it must not depend on web/. The check runs here, so CI fails when the
 // versioned GeoJSON does not fit the schemas (invalid data breaks the build, not the UI).
 const read = (file: string): unknown =>
-  JSON.parse(readFileSync(new URL(`../../../../data/out/${file}`, import.meta.url), "utf8"));
+  JSON.parse(
+    readFileSync(
+      new URL(`../../../../data/${file.includes("/") ? file : `out/${file}`}`, import.meta.url),
+      "utf8",
+    ),
+  );
 
 describe("data/out validates against the schemas of web/", () => {
   it("lines.geojson", () => {
@@ -27,6 +34,16 @@ describe("data/out validates against the schemas of web/", () => {
     const lines = linesCollectionSchema.parse(read("lines.geojson"));
     const stations = stationsCollectionSchema.parse(read("stations.geojson"));
     expect(stations.metadata).toEqual(lines.metadata);
+  });
+
+  it("routes.geojson, in sync with the curated layer it was merged from", () => {
+    const result = routesCollectionSchema.safeParse(read("routes.geojson"));
+    expect(result.error?.issues.slice(0, 5) ?? []).toEqual([]);
+    const curated = curatedRoutesSchema.parse(read("curated/routes.json"));
+    // Fails when routes.json changed and `pnpm data:routes` was not run.
+    expect(result.data?.features.map((f) => [f.properties.chapterId, f.properties.wayIds])).toEqual(
+      curated.routes.map((r) => [r.chapterId, r.wayIds]),
+    );
   });
 
   it("stats.json, with totals that match the GeoJSON it was computed from", () => {
