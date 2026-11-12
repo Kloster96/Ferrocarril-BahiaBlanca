@@ -239,6 +239,12 @@ en el flujo de trabajo.
   dibujarían a la vez. Por eso cada capítulo necesita **un recorrido continuo** (segmentos unidos y ordenados en
   una sola línea). Ese merge se **precalcula en `data/`** a partir de la capa curada (qué IDs de OSM forman el
   recorrido de cada capítulo) y se escribe en `data/out/`. **La capa curada es requisito de la Fase 3.**
+- **Las vías cortadas en el borde del área se leen como el límite de la historia, con una máscara (decisión de
+  Luciano, #47)**: lo que queda fuera de los partidos de Bahía Blanca y Coronel Rosales se desatura y oscurece con un
+  borde suave. La capa va **encima de las vías y debajo de las estaciones** (si fuera debajo, no atenuaría los
+  tramos que salen del área). El polígono sale de las relaciones OSM 2582799 y 2584648, se precalcula en `data/`
+  (`pnpm data:extract-area` + `pnpm data:area`, simplificado con Douglas-Peucker a 50 m: sin eso pesa 1,4 MB) y se
+  sirve por `/api/area`, validado con Zod. Los colores son provisorios: la paleta final se define en la Fase 4.
   - **Verificado (issue #23, `mapbox-gl` 3.34.2, 2026-11-12)** con una página de prueba en Chromium: dos
     LineStrings del mismo largo y un conteo de píxeles visibles de cada una.
     - `lineMetrics: true` **es obligatorio**: sin él, Mapbox rechaza la capa con un error explícito
@@ -255,10 +261,7 @@ en el flujo de trabajo.
 
 ## Preguntas abiertas
 
-- **Fase 2 — vías cortadas en el límite del área**: la extracción trae solo lo que cae dentro de los partidos
-  de Bahía Blanca y Coronel Rosales, así que las vías que salen hacia otros partidos (Tornquist, Villarino,
-  Patagones…) terminan abruptamente en el borde. Decidir cómo mostrarlo: fade al final de la vía, recorte con
-  margen, ampliar el área con un margen alrededor, u otra opción.
+_(ninguna por ahora)_
 
 ## README final (en español)
 
