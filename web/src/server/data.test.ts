@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 import { GET as getCatchAll } from "../app/api/[...slug]/route";
 import { GET as getArea } from "../app/api/area/route";
 import { GET as getLines } from "../app/api/lines/route";
+import { GET as getRoutes } from "../app/api/routes/route";
 import { GET as getStations } from "../app/api/stations/route";
 import { GET as getStats } from "../app/api/stats/route";
 import { apiError } from "./api-error";
@@ -32,6 +33,9 @@ describe("route handlers", () => {
     expect(lines.type).toBe("FeatureCollection");
     expect(lines.features.length).toBeGreaterThan(0);
     expect((await (await getStations()).json()).features.length).toBeGreaterThan(0);
+    const routes = await (await getRoutes()).json();
+    expect(routes.features.length).toBeGreaterThan(0);
+    expect(routes.features[0].properties.camera.zoom).toBeGreaterThan(0);
     const area = await (await getArea()).json();
     expect(area.features.map((f: { properties: { kind: string } }) => f.properties.kind)).toEqual([
       "area",

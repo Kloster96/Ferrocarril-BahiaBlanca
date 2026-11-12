@@ -3,7 +3,10 @@
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { chapters } from "@/content/chapters";
+import { cameraPadding, pickCamera } from "@/lib/camera";
 import { mapboxToken } from "@/lib/env";
+import { useStoryStore } from "@/features/story/story-provider";
 import { INITIAL_VIEW, MAP_LABEL, MAP_STYLE } from "./constants";
 import { MapMessage, MapSkeleton } from "./map-message";
 import { addRailwayLayers } from "./railway-layers";
@@ -32,6 +35,7 @@ export default function MapView() {
   const [mapLoaded, setMapLoaded] = useState(false);
   const [tileProblem, setTileProblem] = useState(false);
   const geo = useGeoData(attempt);
+  const story = useStoryStore();
 
   // `null` on the server (it cannot know); the real answer in the browser.
   const webgl = useSyncExternalStore(subscribeNever, hasWebGL, () => null);
@@ -71,6 +75,35 @@ export default function MapView() {
     if (map.getSource("lines")) return;
     addRailwayLayers(map, geo.data);
   }, [mapLoaded, geo]);
+
+  // The camera follows the active chapter. It reads the store imperatively: the chapter changes a few times per
+  // read, and nothing here should re-render React. Each flyTo cancels the one before it, so when the reader
+  // scrolls fast the last chapter wins.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !mapLoaded || geo.status !== "ready") return;
+    const cameras = new Map(
+      geo.data.routes.features.map((f) => [f.properties.chapterId, f.properties.camera]),
+    );
+    const chapterIds = chapters.map((chapter) => chapter.id);
+    const opening = { center: INITIAL_VIEW.center, zoom: INITIAL_VIEW.zoom };
+    let applied = -1; // the map opens on the hero
+    const follow = (animate: boolean) => {
+      const { index } = story.get();
+      if (index === applied) return;
+      applied = index;
+      const target = pickCamera(index, chapterIds, cameras, opening);
+      // Padding is always explicit: it persists on the map, so going back to the hero must clear it.
+      const padding =
+        index < 0
+          ? { top: 0, right: 0, bottom: 0, left: 0 }
+          : cameraPadding(window.innerWidth, window.innerHeight);
+      if (animate) map.flyTo({ ...target, padding, duration: 2200, essential: false });
+      else map.jumpTo({ ...target, padding });
+    };
+    follow(false); // opened mid-story (a reload keeps the scroll): go straight there
+    return story.subscribe(() => follow(true));
+  }, [mapLoaded, geo, story]);
 
   if (mapboxToken.status !== "ok") {
     return (
