@@ -8,21 +8,12 @@ Hoy tiene un solo archivo.
 El recorrido de cada capítulo: la lista ordenada de vías de OSM (`wayIds`) que lo forman. El merge de la Fase 3
 (#24) las une en una sola línea continua, que es lo que dibuja `line-trim-offset`.
 
-**Estos tres recorridos son de prueba.** Son tramos reales de `data/out/lines.geojson` que se encadenan de punta
-a punta (se verificó que no tienen huecos), elegidos para desarrollar la mecánica (scroll, `flyTo`, dibujo), no
-porque cuenten una historia:
+**Este recorrido es de prueba.** Es un tramo real de `data/out/lines.geojson` que se encadena de punta a punta (se
+verificó que no tiene huecos), elegido para desarrollar la mecánica (scroll, `flyTo`, dibujo), no porque cuente una
+historia. Es el del capítulo 1 (`chapter-1`, 5 vías, ~83 km, activo, casi recto). Hay uno solo porque solo el capítulo 1 es de tipo `route`: un recorrido para un capítulo `zone`, `network` o
+`status` nunca se dibujaría, y un test lo impide.
 
-| Capítulo    | Vías | Para qué sirve                                     |
-| ----------- | ---- | -------------------------------------------------- |
-| `chapter-1` | 5    | Recorrido largo (~83 km), activo, casi recto       |
-| `chapter-2` | 21   | Muchos segmentos cortos (~29 km): estresa el merge |
-| `chapter-3` | 8    | Vías en desuso (~43 km): se dibuja con otro estilo |
-
-**Desde que la historia tiene 7 temas, estos recorridos quedan asociados a los capítulos 1 a 3 solo por el ID**: no
-significan que la llegada del tren, el puerto o las compañías tengan ese trazado. Los capítulos 4 a 7 no tienen
-recorrido (la cámara vuelve a la vista inicial). Qué capítulo dibuja qué se define con los tipos de capítulo.
-
-Todos tienen `verified: false`, `source: null` y `TODO(verify)` en la etiqueta. **No contienen ningún dato
+Tiene `verified: false`, `source: null` y `TODO(verify)` en la etiqueta. **No contiene ningún dato
 histórico**: ni fechas, ni nombres de ramales o compañías, ni relato. Cuando exista la investigación se
 reemplaza este archivo, sin tocar código.
 

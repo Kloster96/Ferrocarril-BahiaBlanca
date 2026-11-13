@@ -67,8 +67,20 @@ describe("data/curated/routes.json", () => {
     expect(missing).toEqual([]);
   });
 
-  it("has a route for chapters that exist, and no more", () => {
-    const chapterIds = new Set(chapters.map((c) => c.id));
-    for (const r of parsed.data?.routes ?? []) expect(chapterIds.has(r.chapterId)).toBe(true);
+  it("only has routes for chapters whose map type is route", () => {
+    // A route for a zone, network or status chapter would never be drawn: it is dead data that looks alive.
+    const routeChapters = new Set(chapters.filter((c) => c.map.type === "route").map((c) => c.id));
+    const orphans = (parsed.data?.routes ?? [])
+      .map((r) => r.chapterId)
+      .filter((id) => !routeChapters.has(id));
+    expect(orphans).toEqual([]);
+  });
+
+  it("has a route for every chapter of type route", () => {
+    const withRoute = new Set((parsed.data?.routes ?? []).map((r) => r.chapterId));
+    const missing = chapters
+      .filter((c) => c.map.type === "route" && !withRoute.has(c.id))
+      .map((c) => c.id);
+    expect(missing).toEqual([]);
   });
 });
