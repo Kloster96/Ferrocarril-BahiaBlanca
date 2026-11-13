@@ -53,3 +53,17 @@ export function routeLooks(
   });
   return looks;
 }
+
+/**
+ * The stations to highlight for the active chapter: those of its zone when it is a `zone` chapter, none in any
+ * other chapter (and none on the hero). `zones` maps a chapter id to the OSM ids of its stations.
+ */
+export function highlightedStations(
+  chapters: readonly MapChapter[],
+  activeIndex: number,
+  zones: ReadonlyMap<string, readonly string[]>,
+): readonly string[] {
+  const chapter = chapters[activeIndex];
+  if (chapter?.map.type !== "zone") return [];
+  return zones.get(chapter.id) ?? [];
+}

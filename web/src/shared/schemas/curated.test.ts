@@ -1,8 +1,14 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { chapters } from "../../content/chapters";
-import { curatedRouteSchema, curatedRoutesSchema } from "./curated";
+import {
+  curatedRouteSchema,
+  curatedRoutesSchema,
+  curatedZoneSchema,
+  curatedZonesSchema,
+} from "./curated";
 import { linesCollectionSchema } from "./line";
+import { stationsCollectionSchema } from "./station";
 
 const readOut = (path: string): unknown =>
   JSON.parse(readFileSync(new URL(`../../../../data/${path}`, import.meta.url), "utf8"));
@@ -82,5 +88,67 @@ describe("data/curated/routes.json", () => {
       .filter((c) => c.map.type === "route" && !withRoute.has(c.id))
       .map((c) => c.id);
     expect(missing).toEqual([]);
+  });
+});
+
+const zone = {
+  chapterId: "chapter-2",
+  label: "TODO(verify): zona",
+  source: null,
+  verified: false,
+  stationIds: ["node/1"],
+};
+
+describe("curatedZoneSchema", () => {
+  it("accepts an unverified zone with pending markers", () => {
+    expect(curatedZoneSchema.safeParse(zone).success).toBe(true);
+  });
+
+  it("applies the same promise as routes: verified needs a source and no TODO(verify)", () => {
+    expect(curatedZoneSchema.safeParse({ ...zone, verified: true }).success).toBe(false);
+    expect(
+      curatedZoneSchema.safeParse({ ...zone, verified: true, source: "Libro X" }).success,
+    ).toBe(false);
+    expect(
+      curatedZoneSchema.safeParse({ ...zone, verified: true, source: "Libro X", label: "Zona" })
+        .success,
+    ).toBe(true);
+  });
+
+  it("refuses empty or duplicated stations, and two zones for the same chapter", () => {
+    expect(curatedZoneSchema.safeParse({ ...zone, stationIds: [] }).success).toBe(false);
+    expect(curatedZoneSchema.safeParse({ ...zone, stationIds: ["node/1", "node/1"] }).success).toBe(
+      false,
+    );
+    expect(curatedZonesSchema.safeParse({ zones: [zone, zone] }).success).toBe(false);
+  });
+});
+
+describe("data/curated/zones.json", () => {
+  const parsed = curatedZonesSchema.safeParse(readOut("curated/zones.json"));
+
+  it("validates against the schema", () => {
+    expect(parsed.error?.issues.slice(0, 5) ?? []).toEqual([]);
+  });
+
+  it("only uses stations that exist in data/out/stations.geojson", () => {
+    const known = new Set(
+      stationsCollectionSchema
+        .parse(readOut("out/stations.geojson"))
+        .features.map((f) => f.properties.id),
+    );
+    const missing = (parsed.data?.zones ?? []).flatMap((z) =>
+      z.stationIds.filter((id) => !known.has(id)).map((id) => `${z.chapterId}: ${id}`),
+    );
+    expect(missing).toEqual([]);
+  });
+
+  it("has a zone for every chapter of type zone, and for no other", () => {
+    const zoneChapters = chapters
+      .filter((c) => c.map.type === "zone")
+      .map((c) => c.id)
+      .sort();
+    const withZone = (parsed.data?.zones ?? []).map((z) => z.chapterId).sort();
+    expect(withZone).toEqual(zoneChapters);
   });
 });

@@ -22,3 +22,14 @@ reemplaza este archivo, sin tocar código.
 - `verified: true` exige `source` y ninguna marca `TODO(verify)` (lo valida el esquema Zod).
 - Una vía por ID de OSM (`way/…`); el orden importa, la orientación no (en OSM es arbitraria).
 - Un test valida el archivo contra el esquema y comprueba que cada vía exista en `data/out/lines.geojson`.
+
+## `zones.json` (provisorio)
+
+La zona de cada capítulo de tipo `zone`: las estaciones de OSM (`stationIds`) que se resaltan. `pnpm data:zones` calcula
+la cámara. Solo puede haber una zona por capítulo `zone` y ninguna para otro tipo (un test lo impide).
+
+- `chapter-2` (el puerto de Ingeniero White): la estación Ingeniero White.
+- `chapter-4` (Punta Alta y Puerto Belgrano): las estaciones Punta Alta y Puerto Belgrano.
+
+Como en `routes.json`: `verified: false`, `source: null`, `TODO(verify)` en la etiqueta y ningún dato histórico. Las estaciones
+se identificaron por su nombre en OSM, no por su historia.

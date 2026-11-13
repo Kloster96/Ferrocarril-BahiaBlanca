@@ -19,6 +19,7 @@ pnpm data:clean     # data/raw → data/out/*.geojson
 pnpm data:stats     # data/out/*.geojson → data/out/stats.json
 pnpm data:extract-area  # descarga los límites de los dos partidos → data/raw/area-raw.json
 pnpm data:routes    # data/out/lines.geojson + data/curated/routes.json → data/out/routes.geojson
+pnpm data:zones     # data/out/stations.geojson + data/curated/zones.json → data/out/zones.geojson
 pnpm data:area      # data/raw/area-raw.json → data/out/area.geojson
 pnpm test           # incluye los tests de data/
 ```
@@ -115,3 +116,16 @@ es lo que dibuja `line-trim-offset`. Lee solo `data/out/lines.geojson` y la capa
   continuar el recorrido.
 - **Falla** solo ante un hueco real o un ID de OSM inexistente, con un mensaje que nombra el capítulo y las vías.
 - Si cambiás `routes.json`, regenerá con `pnpm data:routes`: un test falla si `routes.geojson` quedó desactualizado.
+
+### Zonas por capítulo (`zones.geojson`)
+
+`pnpm data:zones` resuelve la zona curada de cada capítulo de tipo `zone` (`data/curated/zones.json`: las estaciones a
+resaltar) en sus coordenadas y en la **cámara** de ese capítulo (centro y zoom). Lee solo `data/out/stations.geojson` y la
+capa curada, nunca `data/raw/`.
+
+- **Zoom máximo 12,5**: una zona muestra un lugar _y su entorno_; con una sola estación no habría extensión que encuadrar y
+  el mapa se pegaría a la estación. A 12,5 se leen los nombres de las estaciones (aparecen desde el zoom 11).
+- **Falla** ante una zona vacía, una estación repetida o un ID que no existe en `stations.geojson`, nombrando capítulo e ID.
+- Si cambiás `zones.json`, regenerá con `pnpm data:zones`: un test falla si `zones.geojson` quedó desactualizado.
+- Los ejes de las zonas de prueba (Ingeniero White; Punta Alta y Puerto Belgrano) se eligieron **por el nombre de la
+  estación en OSM**, sin ningún dato histórico. Son provisorios hasta tener la investigación.

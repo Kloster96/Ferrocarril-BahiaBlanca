@@ -1,6 +1,7 @@
 import type mapboxgl from "mapbox-gl";
 import { AREA_MASK, OSM_ATTRIBUTION, STATUS_COLOR } from "./constants";
 import { addRouteLayers } from "./route-layers";
+import { addZoneLayer } from "./zone-layers";
 import type { GeoData } from "./use-geo-data";
 
 const statusColor: mapboxgl.ExpressionSpecification = [
@@ -98,6 +99,7 @@ export function addRailwayLayers(
   });
   // The stations layer has to exist first: the routes are inserted just below it.
   addRouteLayers(map, routes, "stations");
+  addZoneLayer(map, "stations");
   map.addLayer({
     id: "station-names",
     type: "symbol",

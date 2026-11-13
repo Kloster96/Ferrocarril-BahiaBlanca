@@ -18,6 +18,7 @@
     "data:extract-area": "node data/scripts/extract-area.ts",
     "data:area": "node data/scripts/clean-area.ts",
     "data:routes": "node data/scripts/build-routes.ts",
+    "data:zones": "node data/scripts/build-zones.ts",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "pnpm --filter web test",
