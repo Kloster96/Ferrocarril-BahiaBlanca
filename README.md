@@ -64,6 +64,14 @@ Si falta el token, la app muestra un estado de error claro en lugar de romperse.
   cuando `VERCEL_ENV=preview`, así que nunca llega al bundle del preview.
 - **Desarrollo local**: otro token, restringido a `localhost`, en `web/.env.local`.
 
+## Tests end-to-end
+
+`pnpm e2e` (hace el build y corre Playwright en desktop y mobile). Prueban la historia: cada posición del scroll
+→ capítulo activo, el progreso, los límites exactos entre capítulos y que el texto se lea sin el mapa. **No tocan el
+mapa a propósito**: Mapbox necesita WebGL y un token, que un runner de CI no tiene, y el estado de la historia es
+independiente de ambos. El mapa se verifica a mano y queda documentado en cada PR. En el CI corren después de
+`pnpm check`, sobre el mismo build.
+
 ## Seguridad
 
 - Sin secretos en el repo: `.env*` ignorado, `.env.example` documentado y gitleaks en CI.

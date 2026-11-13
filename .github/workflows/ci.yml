@@ -44,6 +44,12 @@ jobs:
       # The same script developers run before every push (see CLAUDE.md): local and CI cannot diverge.
       - run: pnpm check
 
+      # E2E runs on the build `pnpm check` just made. The story tests need no WebGL and no Mapbox token.
+      - name: Install Chromium for the E2E tests
+        run: pnpm --filter web exec playwright install --with-deps chromium
+      - name: E2E tests
+        run: pnpm --filter web e2e
+
       - name: Audit dependencies
         run: pnpm audit --audit-level=high
 
