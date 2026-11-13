@@ -100,7 +100,10 @@ Este proyecto se construye con un flujo AI-native, con revisión humana de cada 
 ## Licencia
 
 [MIT](./LICENSE) © 2026 Luciano Kloster. Las dependencias conservan sus propias licencias
-(Mapbox GL JS es propietaria y GSAP tiene la suya; se documentan cuando se incorporan).
+(Mapbox GL JS es propietaria y requiere un token público; GSAP, que se usa para lo atado al scroll, se distribuye
+bajo su [licencia estándar "no charge"](https://gsap.com/standard-license): gratis para cualquier sitio o app web,
+incluido el uso comercial. No es de código abierto, y prohíbe usarlo en herramientas visuales para crear animaciones
+sin código que compitan con las de Webflow, lo que este proyecto no hace).
 
 ## Atribuciones
 
