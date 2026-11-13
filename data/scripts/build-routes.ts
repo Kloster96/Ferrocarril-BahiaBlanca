@@ -5,7 +5,8 @@ import { readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { LineFeature } from "./clean.ts";
-import { cameraFor, mergeRoute, type RouteInput } from "./routes.ts";
+import { cameraFor } from "./camera.ts";
+import { mergeRoute, type RouteInput } from "./routes.ts";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 

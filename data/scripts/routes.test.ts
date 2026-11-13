@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { LineFeature } from "./clean.ts";
-import { cameraFor, mergeRoute } from "./routes.ts";
+import { mergeRoute } from "./routes.ts";
 
 // Only the fields the merge reads; the rest of LineProperties is irrelevant here.
 const way = (id: number, from: number, to: number, coordinates: [number, number][]) =>
@@ -99,58 +99,5 @@ describe("mergeRoute", () => {
 
   it("fails on an empty route", () => {
     expect(() => mergeRoute({ chapterId: "chapter-1", wayIds: [] }, index(a))).toThrow(/no ways/);
-  });
-});
-
-describe("cameraFor", () => {
-  it("centres on the middle of the bounding box", () => {
-    const { center } = cameraFor([
-      [-62, -38],
-      [-61, -37],
-    ]);
-    expect(center).toEqual([-61.5, -37.5]);
-  });
-
-  it("zooms out for a longer route and in for a shorter one", () => {
-    const long = cameraFor([
-      [-62.6, -38.9],
-      [-61.7, -38.1],
-    ]);
-    const short = cameraFor([
-      [-62.2, -38.5],
-      [-62.15, -38.47],
-    ]);
-    expect(short.zoom).toBeGreaterThan(long.zoom);
-  });
-
-  it("fits the box: at the returned zoom it takes no more than the reference size on screen", () => {
-    const { zoom } = cameraFor([
-      [-62.6, -38.9],
-      [-61.7, -38.9],
-    ]);
-    const widthPx = (0.9 / 360) * 512 * 2 ** zoom;
-    expect(widthPx).toBeLessThanOrEqual(340);
-    // ...and not by a lot: rounding to a tenth costs at most about 7% of the size.
-    expect(widthPx).toBeGreaterThan(340 * 0.9);
-  });
-
-  it("measures latitude in Web Mercator: a tall box needs a lower zoom than the same degrees of longitude", () => {
-    const wide = cameraFor([
-      [-62, -38],
-      [-61, -38],
-    ]);
-    const tall = cameraFor([
-      [-62, -38],
-      [-62, -37],
-    ]);
-    expect(tall.zoom).toBeLessThan(wide.zoom);
-  });
-
-  it("clamps a single point to the closest zoom instead of dividing by zero", () => {
-    expect(cameraFor([[-62, -38]]).zoom).toBe(14);
-  });
-
-  it("fails on an empty route", () => {
-    expect(() => cameraFor([])).toThrow(/at least one/);
   });
 });

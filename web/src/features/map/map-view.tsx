@@ -11,6 +11,7 @@ import { INITIAL_VIEW, MAP_LABEL, MAP_STYLE } from "./constants";
 import { MapMessage, MapSkeleton } from "./map-message";
 import { addRailwayLayers } from "./railway-layers";
 import { createRouteUpdater } from "./route-layers";
+import { createZoneUpdater } from "./zone-layers";
 import { useGeoData } from "./use-geo-data";
 
 let webglSupport: boolean | undefined;
@@ -89,9 +90,14 @@ export default function MapView() {
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !mapLoaded || geo.status !== "ready") return;
-    const cameras = new Map(
-      geo.data.routes.features.map((f) => [f.properties.chapterId, f.properties.camera]),
-    );
+    // A chapter has a camera when it has a route or a zone; network and status chapters have none and fall back
+    // to the opening view.
+    const cameras = new Map([
+      ...geo.data.routes.features.map(
+        (f) => [f.properties.chapterId, f.properties.camera] as const,
+      ),
+      ...geo.data.zones.features.map((f) => [f.properties.chapterId, f.properties.camera] as const),
+    ]);
     const chapterIds = chapters.map((chapter) => chapter.id);
     const opening = { center: INITIAL_VIEW.center, zoom: INITIAL_VIEW.zoom };
     let applied = -1; // the map opens on the hero
@@ -115,14 +121,23 @@ export default function MapView() {
     return story.subscribe(() => follow(true));
   }, [mapLoaded, geo, story]);
 
-  // The routes are drawn as the story advances. Same approach as the camera: read the store imperatively, so
+  // The routes and the zone halo follow the story. Same approach as the camera: read the store imperatively, so
   // scrolling never re-renders React.
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !mapLoaded || geo.status !== "ready") return;
-    const update = createRouteUpdater(map, chapters, prefersReducedMotion);
-    update(story.get()); // opened mid-story: draw what the reader has already gone through
-    return story.subscribe(() => update(story.get()));
+    const zones = new Map(
+      geo.data.zones.features.map(
+        (f) => [f.properties.chapterId, f.properties.stationIds] as const,
+      ),
+    );
+    const updaters = [
+      createRouteUpdater(map, chapters, prefersReducedMotion),
+      createZoneUpdater(map, chapters, zones),
+    ];
+    const update = () => updaters.forEach((apply) => apply(story.get()));
+    update(); // opened mid-story: show what the reader has already gone through
+    return story.subscribe(update);
   }, [mapLoaded, geo, story]);
 
   if (mapboxToken.status !== "ok") {

@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { DIMMED_OPACITY, routeLooks, type MapChapter, type RouteLook } from "./chapter-map";
+import {
+  DIMMED_OPACITY,
+  highlightedStations,
+  routeLooks,
+  type MapChapter,
+  type RouteLook,
+} from "./chapter-map";
 
 // route, zone, route, network, status: enough to cover every pair of (route chapter, active type).
 const chapters: MapChapter[] = [
@@ -69,5 +75,22 @@ describe("routeLooks", () => {
       expect(looks(3, 0, true).a).toEqual({ drawn: 1, opacity: DIMMED_OPACITY });
       expect(looks(4, 0, true).a).toEqual({ drawn: 1, opacity: 0 });
     });
+  });
+});
+
+describe("highlightedStations", () => {
+  const zones = new Map([["b", ["node/1", "node/2"]]]);
+
+  it("returns the stations of the zone chapter that is active", () => {
+    expect(highlightedStations(chapters, 1, zones)).toEqual(["node/1", "node/2"]);
+  });
+
+  it("returns none in any other chapter type, or on the hero", () => {
+    for (const index of [-1, 0, 2, 3, 4])
+      expect(highlightedStations(chapters, index, zones)).toEqual([]);
+  });
+
+  it("returns none for a zone chapter that has no zone data", () => {
+    expect(highlightedStations(chapters, 1, new Map())).toEqual([]);
   });
 });

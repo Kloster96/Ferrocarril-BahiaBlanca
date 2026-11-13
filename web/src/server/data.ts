@@ -6,6 +6,7 @@ import { linesCollectionSchema } from "@/shared/schemas/line";
 import { stationsCollectionSchema } from "@/shared/schemas/station";
 import { routesCollectionSchema } from "@/shared/schemas/route";
 import { statsSchema } from "@/shared/schemas/stats";
+import { zonesCollectionSchema } from "@/shared/schemas/zone";
 
 // data/ lives next to web/, outside the Next.js project root. The handlers that call this are static
 // (`force-static`), so the file is read once at build time: no file tracing is needed at runtime, and
@@ -39,3 +40,4 @@ export const loadStations = (dir?: string) =>
 export const loadStats = (dir?: string) => loadJson("stats.json", statsSchema, dir);
 export const loadArea = (dir?: string) => loadJson("area.geojson", areaCollectionSchema, dir);
 export const loadRoutes = (dir?: string) => loadJson("routes.geojson", routesCollectionSchema, dir);
+export const loadZones = (dir?: string) => loadJson("zones.geojson", zonesCollectionSchema, dir);

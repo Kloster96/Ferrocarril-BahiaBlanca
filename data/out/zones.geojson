@@ -1,0 +1,8 @@
+{
+  "type": "FeatureCollection",
+  "metadata": {"source":"OpenStreetMap","license":"ODbL 1.0 — © OpenStreetMap contributors — https://www.openstreetmap.org/copyright","osmBaseTimestamp":"2026-11-11T20:26:43Z","fetchedAt":"2026-11-11T20:28:01.232Z"},
+  "features": [
+    {"type":"Feature","geometry":{"type":"MultiPoint","coordinates":[[-62.2645856,-38.7862867]]},"properties":{"chapterId":"chapter-2","stationIds":["node/2865518237"],"camera":{"center":[-62.264586,-38.786287],"zoom":12.5}}},
+    {"type":"Feature","geometry":{"type":"MultiPoint","coordinates":[[-62.083766,-38.8817802],[-62.0945009,-38.8942942]]},"properties":{"chapterId":"chapter-4","stationIds":["node/1293857540","node/1293810493"],"camera":{"center":[-62.089133,-38.888037],"zoom":12.5}}}
+  ]
+}
