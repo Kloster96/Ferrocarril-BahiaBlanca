@@ -51,15 +51,14 @@ export function StoryScroll({ children }: { children: ReactNode }) {
           onUpdate: (self) => {
             if (self.isActive) store.set({ index, progress: self.progress });
           },
-          // At its exact end a trigger is no longer "active", so the last update (progress 1) would be dropped by
-          // the guard above. Only the last chapter needs this: for the others, the next chapter takes over.
-          onLeave: () => {
-            if (isLast) store.set({ index, progress: 1 });
-          },
-          // Scrolling back above the first chapter returns to the hero.
-          onLeaveBack: () => {
-            if (index === 0) store.set(HERO);
-          },
+          // At its exact end a trigger is no longer "active", so the guard above drops the final update. Leaving a
+          // chapter downwards means it is complete: say so. If the next chapter has already started, its own
+          // update comes right after (triggers run in scroll order) and takes over; if the scroll lands exactly
+          // on the boundary, or the page ends here (the last chapter), this is the state that stays.
+          onLeave: () => store.set({ index, progress: 1 }),
+          // The mirror image, scrolling up: leaving a chapter upwards puts the previous one at its end, or the hero
+          // before the first chapter.
+          onLeaveBack: () => store.set(index === 0 ? HERO : { index: index - 1, progress: 1 }),
         });
       });
     }, element);
