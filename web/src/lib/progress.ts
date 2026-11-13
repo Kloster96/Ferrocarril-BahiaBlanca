@@ -48,12 +48,3 @@ export function routeProgress(routeIndex: number, active: ChapterProgress): numb
 export function trimOffset(progress: number): [number, number] {
   return [clamp01(progress), 1];
 }
-
-/**
- * Whether a chapter's route is shown at all when the reader asked for reduced motion. There is no scrub then:
- * a route is either hidden (its chapter has not been reached) or fully there, and it fades in instead of
- * being drawn along the scroll. Earlier chapters stay, like in the animated version.
- */
-export function routeRevealed(routeIndex: number, activeIndex: number): boolean {
-  return routeIndex <= activeIndex;
-}

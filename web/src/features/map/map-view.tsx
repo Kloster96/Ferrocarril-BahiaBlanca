@@ -120,12 +120,7 @@ export default function MapView() {
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !mapLoaded || geo.status !== "ready") return;
-    const update = createRouteUpdater(
-      map,
-      chapters.map((chapter) => chapter.id),
-      geo.data.routes.features.map((f) => f.properties.chapterId),
-      prefersReducedMotion,
-    );
+    const update = createRouteUpdater(map, chapters, prefersReducedMotion);
     update(story.get()); // opened mid-story: draw what the reader has already gone through
     return story.subscribe(() => update(story.get()));
   }, [mapLoaded, geo, story]);

@@ -6,51 +6,6 @@
       "source": null,
       "verified": false,
       "wayIds": ["way/451617194", "way/28621339", "way/37681396", "way/36883846", "way/431111817"]
-    },
-    {
-      "chapterId": "chapter-2",
-      "label": "TODO(verify): recorrido del capítulo 2 (provisorio, solo para desarrollar la mecánica)",
-      "source": null,
-      "verified": false,
-      "wayIds": [
-        "way/1413022350",
-        "way/1413022355",
-        "way/1413022354",
-        "way/1413022357",
-        "way/1413022356",
-        "way/1413022359",
-        "way/1413022358",
-        "way/1413022365",
-        "way/1413022364",
-        "way/973198336",
-        "way/1413022363",
-        "way/1413022362",
-        "way/973198335",
-        "way/1413022361",
-        "way/1413022360",
-        "way/168116168",
-        "way/431484927",
-        "way/168116167",
-        "way/778623612",
-        "way/778623611",
-        "way/431484926"
-      ]
-    },
-    {
-      "chapterId": "chapter-3",
-      "label": "TODO(verify): recorrido del capítulo 3 (provisorio, solo para desarrollar la mecánica)",
-      "source": null,
-      "verified": false,
-      "wayIds": [
-        "way/114191104",
-        "way/134591142",
-        "way/134591143",
-        "way/114191103",
-        "way/114191106",
-        "way/114191105",
-        "way/486400631",
-        "way/114187584"
-      ]
     }
   ]
 }

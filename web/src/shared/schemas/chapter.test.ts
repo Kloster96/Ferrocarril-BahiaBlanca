@@ -9,7 +9,43 @@ const valid = {
   period: null,
   source: null,
   verified: false,
+  map: { type: "network" },
 };
+
+describe("chapter map types", () => {
+  it("accepts the four types", () => {
+    for (const map of [
+      { type: "route" },
+      { type: "zone" },
+      { type: "network" },
+      { type: "status", statuses: ["disused", "abandoned"] },
+    ]) {
+      expect(chapterSchema.safeParse({ ...valid, map }).success).toBe(true);
+    }
+  });
+
+  it("requires at least one status in a status chapter", () => {
+    expect(
+      chapterSchema.safeParse({ ...valid, map: { type: "status", statuses: [] } }).success,
+    ).toBe(false);
+    expect(chapterSchema.safeParse({ ...valid, map: { type: "status" } }).success).toBe(false);
+  });
+
+  it("rejects an unknown type, an unknown status and extra fields", () => {
+    expect(chapterSchema.safeParse({ ...valid, map: { type: "heatmap" } }).success).toBe(false);
+    expect(
+      chapterSchema.safeParse({ ...valid, map: { type: "status", statuses: ["closed"] } }).success,
+    ).toBe(false);
+    expect(
+      chapterSchema.safeParse({ ...valid, map: { type: "route", statuses: ["active"] } }).success,
+    ).toBe(false);
+  });
+
+  it("requires a map type on every chapter", () => {
+    const withoutMap = Object.fromEntries(Object.entries(valid).filter(([key]) => key !== "map"));
+    expect(chapterSchema.safeParse(withoutMap).success).toBe(false);
+  });
+});
 
 describe("chapterSchema", () => {
   it("accepts an unverified chapter without source", () => {

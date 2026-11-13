@@ -1,5 +1,6 @@
 import type mapboxgl from "mapbox-gl";
-import { routeProgress, routeRevealed, trimOffset, type ChapterProgress } from "@/lib/progress";
+import { routeLooks, type MapChapter } from "@/lib/chapter-map";
+import { trimOffset, type ChapterProgress } from "@/lib/progress";
 import type { RoutesCollection } from "@/shared/schemas/route";
 import { OSM_ATTRIBUTION, ROUTE_COLOR } from "./constants";
 
@@ -48,45 +49,29 @@ export function addRouteLayers(
  * Applies the story state to the routes. Returns a function to call on every state change; it touches the map
  * only for the values that actually changed, because every setPaintProperty makes Mapbox redraw.
  *
- * - Animated: earlier chapters stay drawn, the active one follows the scroll (`line-trim-offset`), later ones
- *   are hidden.
- * - Reduced motion: no scrub. A route is hidden until its chapter is reached and then fades in whole (opacity,
- *   not movement). `prefersReducedMotion` is asked on every call, so it follows the setting if it changes
- *   while the page is open.
+ * What each route looks like for each chapter type is decided in `routeLooks` (pure, tested). This only
+ * carries it to Mapbox: how much of the line is drawn (`line-trim-offset`) and how opaque it is.
+ * `prefersReducedMotion` is asked on every call, so it follows the setting if it changes while the page is open.
  */
 export function createRouteUpdater(
   map: mapboxgl.Map,
-  chapterIds: readonly string[],
-  routeChapterIds: readonly string[],
+  chapters: readonly MapChapter[],
   prefersReducedMotion: () => boolean,
 ) {
-  const trims = new Map<string, number>();
+  const drawn = new Map<string, number>();
   const opacities = new Map<string, number>();
-  const setIfChanged = (
-    cache: Map<string, number>,
-    id: string,
-    value: number,
-    apply: () => void,
-  ) => {
-    if (cache.get(id) === value) return;
-    cache.set(id, value);
-    apply();
-  };
 
   return (state: ChapterProgress) => {
-    const reduced = prefersReducedMotion();
-    for (const chapterId of routeChapterIds) {
+    for (const [chapterId, look] of routeLooks(chapters, state, prefersReducedMotion())) {
       const layer = routeLayerId(chapterId);
-      const index = chapterIds.indexOf(chapterId);
-      // Reduced motion: the line is always whole and only its opacity changes.
-      const trim = reduced ? 1 : routeProgress(index, state);
-      const opacity = reduced && !routeRevealed(index, state.index) ? 0 : 1;
-      setIfChanged(trims, chapterId, trim, () =>
-        map.setPaintProperty(layer, "line-trim-offset", trimOffset(trim)),
-      );
-      setIfChanged(opacities, chapterId, opacity, () =>
-        map.setPaintProperty(layer, "line-opacity", opacity),
-      );
+      if (drawn.get(chapterId) !== look.drawn) {
+        drawn.set(chapterId, look.drawn);
+        map.setPaintProperty(layer, "line-trim-offset", trimOffset(look.drawn));
+      }
+      if (opacities.get(chapterId) !== look.opacity) {
+        opacities.set(chapterId, look.opacity);
+        map.setPaintProperty(layer, "line-opacity", look.opacity);
+      }
     }
   };
 }

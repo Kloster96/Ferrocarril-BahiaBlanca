@@ -15,6 +15,7 @@ export function ChapterCard({ chapter, position, total }: Props) {
     <section
       id={chapter.id}
       data-chapter={position - 1}
+      data-map-type={chapter.map.type}
       aria-labelledby={headingId}
       className="flex min-h-dvh items-end px-4 pb-6 md:items-center md:px-8 md:pb-0"
     >

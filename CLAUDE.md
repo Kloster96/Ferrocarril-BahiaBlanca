@@ -264,6 +264,16 @@ en el flujo de trabajo.
     - Límites de la doc: `feature-state` y expresiones de datos no figuran como soportados para esta propiedad,
       y `line-trim-color` y `line-trim-fade-range` son experimentales (3.6.0+).
 
+- **Cada capítulo declara qué hace el mapa: cuatro tipos (decisión de Luciano, #75)**: `route` (vuela al recorrido y lo
+  dibuja con el scroll; es el único tipo que usa `line-trim-offset`, #60), `zone` (vuela a un lugar y resalta sus
+  estaciones), `network` (vista general del área) y `status` (vista general que atenúa todo salvo las vías y
+  estaciones del estado elegido). Los recorridos ya dibujados quedan **atenuados** en `zone` y `network`, y
+  **ocultos** en `status`. Un recorrido curado solo puede existir para un capítulo `route` (lo valida un test).
+  **La asignación de tipos sigue lo que el mapa puede mostrar hoy, no la historia, y la corrige Luciano cuando
+  tenga la investigación. La del capítulo 3 ("Las compañías que competían") es PROVISORIA**: hoy es `network`;
+  probablemente pase a resaltar las estaciones de compañías distintas, y eso necesita la capa curada con la
+  compañía por vía o estación (`data/curated/`), que todavía no existe. No inventar compañías en el medio.
+
 ## Preguntas abiertas
 
 _(ninguna por ahora)_
