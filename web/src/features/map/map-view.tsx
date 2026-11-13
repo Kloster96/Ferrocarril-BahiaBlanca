@@ -18,7 +18,11 @@ function hasWebGL(): boolean {
   webglSupport ??= (() => {
     try {
       const canvas = document.createElement("canvas");
-      return Boolean(canvas.getContext("webgl2") ?? canvas.getContext("webgl"));
+      const gl = canvas.getContext("webgl2") ?? canvas.getContext("webgl");
+      // Only a probe: release the context right away. Browsers allow about 16 live contexts per page and this
+      // one would otherwise stay alive next to the real map for the whole session.
+      gl?.getExtension("WEBGL_lose_context")?.loseContext();
+      return Boolean(gl);
     } catch {
       return false;
     }
