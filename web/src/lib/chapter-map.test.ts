@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   DIMMED_OPACITY,
+  emphasizedStatuses,
   highlightedStations,
   routeLooks,
   type MapChapter,
@@ -92,5 +93,15 @@ describe("highlightedStations", () => {
 
   it("returns none for a zone chapter that has no zone data", () => {
     expect(highlightedStations(chapters, 1, new Map())).toEqual([]);
+  });
+});
+
+describe("emphasizedStatuses", () => {
+  it("returns the statuses of the status chapter that is active", () => {
+    expect(emphasizedStatuses(chapters, 4)).toEqual(["active"]);
+  });
+
+  it("returns null in any other chapter type and on the hero: nothing is faded", () => {
+    for (const index of [-1, 0, 1, 2, 3]) expect(emphasizedStatuses(chapters, index)).toBeNull();
   });
 });

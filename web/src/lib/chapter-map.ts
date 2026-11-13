@@ -1,4 +1,5 @@
 import type { Chapter } from "@/shared/schemas/chapter";
+import type { Status } from "@/shared/schemas/geo";
 import { clamp01, routeProgress, type ChapterProgress } from "./progress";
 
 export type MapChapter = Pick<Chapter, "id" | "map">;
@@ -66,4 +67,19 @@ export function highlightedStations(
   const chapter = chapters[activeIndex];
   if (chapter?.map.type !== "zone") return [];
   return zones.get(chapter.id) ?? [];
+}
+
+/** How faded the lines and stations that are NOT in the chosen status look in a `status` chapter. */
+export const DIMMED_STATUS_OPACITY = 0.15;
+
+/**
+ * The statuses to emphasise for the active chapter: those it declares when it is a `status` chapter, and `null`
+ * in any other chapter (and on the hero), meaning nothing is faded.
+ */
+export function emphasizedStatuses(
+  chapters: readonly MapChapter[],
+  activeIndex: number,
+): readonly Status[] | null {
+  const map = chapters[activeIndex]?.map;
+  return map?.type === "status" ? map.statuses : null;
 }

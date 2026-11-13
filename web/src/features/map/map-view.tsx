@@ -11,6 +11,7 @@ import { INITIAL_VIEW, MAP_LABEL, MAP_STYLE } from "./constants";
 import { MapMessage, MapSkeleton } from "./map-message";
 import { addRailwayLayers } from "./railway-layers";
 import { createRouteUpdater } from "./route-layers";
+import { createStatusUpdater } from "./status-layers";
 import { createZoneUpdater } from "./zone-layers";
 import { useGeoData } from "./use-geo-data";
 
@@ -134,6 +135,7 @@ export default function MapView() {
     const updaters = [
       createRouteUpdater(map, chapters, prefersReducedMotion),
       createZoneUpdater(map, chapters, zones),
+      createStatusUpdater(map, chapters),
     ];
     const update = () => updaters.forEach((apply) => apply(story.get()));
     update(); // opened mid-story: show what the reader has already gone through
