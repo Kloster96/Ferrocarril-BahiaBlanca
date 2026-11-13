@@ -26,6 +26,8 @@ function hasWebGL(): boolean {
   return webglSupport;
 }
 
+const prefersReducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
 // The answer never changes while the page lives, so there is nothing to subscribe to.
 const subscribeNever = () => () => {};
 
@@ -99,8 +101,11 @@ export default function MapView() {
         index < 0
           ? { top: 0, right: 0, bottom: 0, left: 0 }
           : cameraPadding(window.innerWidth, window.innerHeight);
-      if (animate) map.flyTo({ ...target, padding, duration: 2200, essential: false });
-      else map.jumpTo({ ...target, padding });
+      // Reduced motion: no flight, the camera jumps. (`essential: false` already makes Mapbox do this itself;
+      // asking explicitly keeps the behaviour visible here and independent of that detail.)
+      if (animate && !prefersReducedMotion()) {
+        map.flyTo({ ...target, padding, duration: 2200, essential: false });
+      } else map.jumpTo({ ...target, padding });
     };
     follow(false); // opened mid-story (a reload keeps the scroll): go straight there
     return story.subscribe(() => follow(true));
@@ -115,6 +120,7 @@ export default function MapView() {
       map,
       chapters.map((chapter) => chapter.id),
       geo.data.routes.features.map((f) => f.properties.chapterId),
+      prefersReducedMotion,
     );
     update(story.get()); // opened mid-story: draw what the reader has already gone through
     return story.subscribe(() => update(story.get()));
