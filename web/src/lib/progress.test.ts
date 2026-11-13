@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { chapterProgress, clamp01, routeProgress, trimOffset } from "./progress";
+import { chapterProgress, clamp01, routeProgress, routeRevealed, trimOffset } from "./progress";
 
 describe("clamp01", () => {
   it("keeps values inside 0..1 and clamps the rest", () => {
@@ -73,5 +73,20 @@ describe("trimOffset", () => {
   it("clamps its input", () => {
     expect(trimOffset(-1)).toEqual([0, 1]);
     expect(trimOffset(9)).toEqual([1, 1]);
+  });
+});
+
+describe("routeRevealed", () => {
+  it("shows the routes of the active chapter and of the ones before it", () => {
+    expect(routeRevealed(0, 1)).toBe(true);
+    expect(routeRevealed(1, 1)).toBe(true);
+  });
+
+  it("hides the routes of chapters not reached yet", () => {
+    expect(routeRevealed(2, 1)).toBe(false);
+  });
+
+  it("hides everything on the hero (index -1)", () => {
+    expect(routeRevealed(0, -1)).toBe(false);
   });
 });
