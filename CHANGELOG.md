@@ -5,6 +5,50 @@ Todos los cambios relevantes de este proyecto se documentan en este archivo.
 El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y el proyecto usa
 [versionado semántico](https://semver.org/lang/es/). Cada fase cierra con una versión: `v0.1.0` = Fase 0 … `v0.7.0` = Fase 7.
 
+## [0.4.0] - 2026-11-13
+
+Fase 3 — Scrollytelling.
+
+### Agregado
+
+- Mapa fijo (sticky) con un hero y una tarjeta por capítulo. Un `ScrollTrigger` por capítulo alimenta un store
+  que el mapa lee: la lógica de progreso es pura y tiene tests.
+- La cámara vuela (`flyTo`) a cada capítulo mientras se hace scroll.
+- Dibujo progresivo de las vías con `line-trim-offset`, atado al progreso del scroll (scrub). Cada recorrido sale de
+  la capa curada, unido en una sola línea continua en `data/` (el build falla si los tramos no conectan).
+- Siete capítulos con su tema, cada uno con un tipo de mapa: `route` (vuela y dibuja el recorrido), `zone` (vuela a
+  un lugar y resalta sus estaciones con un halo), `network` (vista general) y `status` (atenúa todo salvo las vías
+  y estaciones del estado elegido). Los recorridos ya dibujados quedan atenuados en `zone` y `network`, y ocultos
+  en `status`.
+- Capa curada de zonas (`data/curated/zones.json`), resuelta en `data/` a estaciones y cámara, y servida por
+  `/api/zones`.
+- `prefers-reduced-motion`: sin vuelos ni scrub, y el texto se lee sin el mapa.
+- Test E2E con Playwright (scroll hasta el capítulo activo), corriendo en el CI.
+
+### Corregido
+
+- El estado del scroll al caer justo en el borde de un capítulo.
+- El contexto WebGL de la sonda se libera, para que solo el mapa mantenga uno vivo.
+
+### Decisiones
+
+- Cada capítulo declara qué hace el mapa. La asignación sigue lo que el mapa puede mostrar hoy, no la historia.
+- Los recorridos de prueba de los capítulos 2 y 3 se sacaron: con la asignación de tipos nunca se habrían dibujado,
+  y un test impide que exista un recorrido para un capítulo que no sea `route`.
+- Dos capítulos `route` consecutivos: el recorrido anterior queda a fuerza completa.
+- La licencia de GSAP (3.15.1, licencia estándar "no charge") queda documentada en el README.
+
+### Deuda conocida
+
+- **El capítulo 3 es provisorio**: hoy es `network`. Probablemente pase a resaltar estaciones de compañías
+  distintas, y eso necesita la capa curada con la compañía por vía o estación.
+- **Los datos curados no están verificados**: recorridos y zonas tienen `verified: false` y sin fuente. Las
+  estaciones de las zonas se eligieron por su nombre en OSM, sin ningún dato histórico.
+- **Colores provisorios**: el halo violeta de las zonas y los de la máscara y las vías. La paleta final va en la
+  Fase 4.
+- **#53**: deploy a Vercel con token de producción restringido. Falta la URL para verificar CSP y mapa en producción.
+- **#29**: simplificar las vías con Douglas-Peucker, solo si el tamaño lo exige.
+
 ## [0.3.0] - 2026-11-12
 
 Fase 2 — Mapa base + API.
@@ -131,3 +175,4 @@ Fase 0 — Setup.
   la decisión con números.
 
 [0.1.0]: https://github.com/Kloster96/Ferrocarril-BahiaBlanca/releases/tag/v0.1.0
+[0.4.0]: https://github.com/Kloster96/Ferrocarril-BahiaBlanca/releases/tag/v0.4.0
