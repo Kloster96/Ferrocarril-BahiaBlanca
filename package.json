@@ -26,7 +26,7 @@
     "e2e": "pnpm build && pnpm --filter web e2e"
   },
   "devDependencies": {
-    "prettier": "3.9.10",
+    "prettier": "3.10.0",
     "prettier-plugin-tailwindcss": "0.8.1"
   }
 }
